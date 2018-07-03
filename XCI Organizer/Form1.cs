@@ -48,7 +48,7 @@ namespace XCI_Organizer
 
         public IniFile ini;
         
-            private Image[] Icons = new Image[16];
+        private Image[] Icons = new Image[16];
         private TreeViewFileSystem TV_Parti;
         private BetterTreeNode rootNode;
         public List<char> chars = new List<char>();
@@ -69,7 +69,7 @@ namespace XCI_Organizer
         public Form1() {
             InitializeComponent();
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            this.Text = "XCI Organizer v0.0.1";// + assemblyVersion;
+            this.Text = "XCI Organizer v0.0.2";// + assemblyVersion;
 
             if (!File.Exists("keys.txt")) {
                 if (File.Exists("Get-keys.txt.bat") && MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -359,10 +359,6 @@ namespace XCI_Organizer
             ini = new IniFile((AppDomain.CurrentDomain.BaseDirectory) + "XCI_Organizer.ini");
             UpdateFileList();
             //ini.IniReadValue("Config", "BaseFolder");
-
-/*
-
-*/
         }
 
         private void ClearFields() {
@@ -577,16 +573,6 @@ namespace XCI_Organizer
             PB_GameIcon.BackgroundImage = Icons[num];
             TB_Name.Text = NACP.NACP_Strings[num].GameName;
             TB_Dev.Text = NACP.NACP_Strings[num].GameAuthor;
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txbBaseFolder_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void showInExplorerToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -812,6 +798,8 @@ namespace XCI_Organizer
             B_Extract.Enabled = true;
             btnBaseFolder.Enabled = true;
             B_TrimXCI.Enabled = true;
+            B_ImportCert.Enabled = true;
+            B_ClearCert.Enabled = true;
 
             if (e.Error != null)
             {
@@ -834,6 +822,8 @@ namespace XCI_Organizer
                     B_Extract.Enabled = false;
                     btnBaseFolder.Enabled = false;
                     B_TrimXCI.Enabled = false;
+                    B_ImportCert.Enabled = false;
+                    B_ClearCert.Enabled = false;
 
                     // Start the asynchronous operation.
                     backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);

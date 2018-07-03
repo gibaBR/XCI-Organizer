@@ -108,7 +108,6 @@
             this.txbBaseFolder.Size = new System.Drawing.Size(460, 20);
             this.txbBaseFolder.TabIndex = 1;
             this.txbBaseFolder.TabStop = false;
-            this.txbBaseFolder.TextChanged += new System.EventHandler(this.txbBaseFolder_TextChanged);
             // 
             // lboxFiles
             // 
@@ -406,7 +405,6 @@
             this.label2.Size = new System.Drawing.Size(52, 13);
             this.label2.TabIndex = 27;
             this.label2.Text = "Cart Size:";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // PB_GameIcon
             // 
