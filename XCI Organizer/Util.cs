@@ -88,12 +88,8 @@ namespace XCI_Organizer {
             List<string> list = new List<string>();
 
             try {
-                foreach (string d in Directory.GetDirectories(folder)) {
-                    foreach (string f in Directory.GetFiles(d, "*.xci")) {
-                        list.Add(f);
-                    }
-
-                    GetXCIsInFolder(d);
+                foreach (string f in Directory.GetFiles(folder, "*.xci", SearchOption.AllDirectories)) {
+                    list.Add(f);
                 }
             } catch (System.Exception execpt) {
                 Console.WriteLine(execpt.Message);
