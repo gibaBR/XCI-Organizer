@@ -697,5 +697,150 @@ namespace XCI_Organizer
             }
 
         }
+
+        private void TV_Partitions_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            BetterTreeNode betterTreeNode = (BetterTreeNode)TV_Partitions.SelectedNode;
+            if (betterTreeNode.Offset != -1)
+            {
+                selectedOffset = betterTreeNode.Offset;
+                selectedSize = betterTreeNode.Size;
+                string expectedHash = betterTreeNode.ExpectedHash;
+                string actualHash = betterTreeNode.ActualHash;
+                long HashedRegionSize = betterTreeNode.HashedRegionSize;
+
+                LB_DataOffset.Text = "Offset: 0x" + selectedOffset.ToString("X");
+                LB_SelectedData.Text = e.Node.Text;
+                if (backgroundWorker1.IsBusy != true)
+                {
+                    B_Extract.Enabled = true;
+                }
+                string[] array = new string[5]
+                {
+                    "B",
+                    "KB",
+                    "MB",
+                    "GB",
+                    "TB"
+                };
+                double num = (double)selectedSize;
+                int num2 = 0;
+                while (num >= 1024.0 && num2 < array.Length - 1)
+                {
+                    num2++;
+                    num /= 1024.0;
+                }
+                LB_DataSize.Text = "Size:   0x" + selectedSize.ToString("X") + " (" + num.ToString() + array[num2] + ")";
+
+                if (HashedRegionSize != 0)
+                {
+                    LB_HashedRegionSize.Text = "HashedRegionSize: 0x" + HashedRegionSize.ToString("X");
+                }
+                else
+                {
+                    LB_HashedRegionSize.Text = "";
+                }
+
+                if (!string.IsNullOrEmpty(expectedHash))
+                {
+                    LB_ExpectedHash.Text = "Header Hash: " + expectedHash.Substring(0, 32);
+                }
+                else
+                {
+                    LB_ExpectedHash.Text = "";
+                }
+
+                if (!string.IsNullOrEmpty(actualHash))
+                {
+                    LB_ActualHash.Text = "Actual Hash: " + actualHash.Substring(0, 32);
+                    if (actualHash == expectedHash)
+                    {
+                        LB_ActualHash.ForeColor = System.Drawing.Color.Green;
+                    }
+                    else
+                    {
+                        LB_ActualHash.ForeColor = System.Drawing.Color.Red;
+                    }
+                }
+                else
+                {
+                    LB_ActualHash.Text = "";
+                }
+
+            }
+            else
+            {
+                LB_SelectedData.Text = "";
+                LB_DataOffset.Text = "";
+                LB_DataSize.Text = "";
+                LB_HashedRegionSize.Text = "";
+                LB_ExpectedHash.Text = "";
+                LB_ActualHash.Text = "";
+                B_Extract.Enabled = false;
+            }
+
+        }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            string fileName = (string)e.Argument;
+
+            using (FileStream fileStream = File.OpenRead(selectedFile))
+            {
+                using (FileStream fileStream2 = File.OpenWrite(fileName))
+                {
+                    new BinaryReader(fileStream);
+                    new BinaryWriter(fileStream2);
+                    fileStream.Position = selectedOffset;
+                    byte[] buffer = new byte[8192];
+                    long num = selectedSize;
+                    int num2;
+                    while ((num2 = fileStream.Read(buffer, 0, 8192)) > 0 && num > 0)
+                    {
+                        fileStream2.Write(buffer, 0, num2);
+                        num -= num2;
+                    }
+                    fileStream.Close();
+                }
+            }
+
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            B_Extract.Enabled = true;
+            btnBaseFolder.Enabled = true;
+            B_TrimXCI.Enabled = true;
+
+            if (e.Error != null)
+            {
+                MessageBox.Show("Error: " + e.Error.Message);
+            }
+            else
+            {
+                MessageBox.Show("Done extracting NCA!");
+            }
+        }
+
+        private void B_Extract_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.FileName = LB_SelectedData.Text;
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (backgroundWorker1.IsBusy != true)
+                {
+                    B_Extract.Enabled = false;
+                    btnBaseFolder.Enabled = false;
+                    B_TrimXCI.Enabled = false;
+
+                    // Start the asynchronous operation.
+                    backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);
+
+                    MessageBox.Show("Extracting NCA\nPlease wait...");
+                }
+            }
+        }
     }
 }

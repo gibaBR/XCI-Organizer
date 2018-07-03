@@ -81,6 +81,7 @@
             this.LB_SelectedData = new System.Windows.Forms.Label();
             this.TV_Partitions = new System.Windows.Forms.TreeView();
             this.BT_Refresh = new System.Windows.Forms.Button();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -540,6 +541,7 @@
             this.B_Extract.TabIndex = 4;
             this.B_Extract.Text = "Extract";
             this.B_Extract.UseVisualStyleBackColor = true;
+            this.B_Extract.Click += new System.EventHandler(this.B_Extract_Click);
             // 
             // LB_DataSize
             // 
@@ -576,6 +578,7 @@
             this.TV_Partitions.Name = "TV_Partitions";
             this.TV_Partitions.Size = new System.Drawing.Size(568, 361);
             this.TV_Partitions.TabIndex = 0;
+            this.TV_Partitions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TV_Partitions_AfterSelect);
             // 
             // BT_Refresh
             // 
@@ -586,6 +589,11 @@
             this.BT_Refresh.Text = "Refresh";
             this.BT_Refresh.UseVisualStyleBackColor = true;
             this.BT_Refresh.Click += new System.EventHandler(this.BT_Refresh_Click);
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
             // Form1
             // 
@@ -669,6 +677,7 @@
         private System.Windows.Forms.ToolStripMenuItem trimXCIToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sendToSDCardToolStripMenuItem;
         private System.Windows.Forms.Button BT_Refresh;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 
