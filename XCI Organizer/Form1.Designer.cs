@@ -96,7 +96,7 @@
             this.btnBaseFolder.Name = "btnBaseFolder";
             this.btnBaseFolder.Size = new System.Drawing.Size(113, 23);
             this.btnBaseFolder.TabIndex = 0;
-            this.btnBaseFolder.Text = "Select base folder";
+            this.btnBaseFolder.Text = "Select Game Folder";
             this.btnBaseFolder.UseVisualStyleBackColor = true;
             this.btnBaseFolder.Click += new System.EventHandler(this.btnBaseFolder_Click);
             // 

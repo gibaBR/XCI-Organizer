@@ -64,7 +64,11 @@ namespace XCI_Organizer
         private long selectedOffset;
         private long selectedSize;
 
-
+        public class FileData
+        {
+            public string FilePath { get; set; }
+            public string FileName { get; set; }
+        }
 
         public Form1() {
             InitializeComponent();
@@ -138,7 +142,7 @@ namespace XCI_Organizer
         private void btnBaseFolder_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderFileDialog = new FolderBrowserDialog();
-            folderFileDialog.Description = "Select the base folder for your collection";
+            folderFileDialog.Description = "Select the base folder for your collection:";
             if (folderFileDialog.ShowDialog() == DialogResult.OK) {
                 ini.IniWriteValue("Config", "BaseFolder", folderFileDialog.SelectedPath);
                 UpdateFileList();
@@ -158,7 +162,12 @@ namespace XCI_Organizer
                 List<string> files = Util.GetXCIsInFolder(selectedPath);
 
                 foreach (string file in files) {
-                    lboxFiles.Items.Add(file);
+                    FileData data = new FileData();
+                    data.FilePath = file;
+                    data.FileName = Path.GetFileNameWithoutExtension(file);
+                    lboxFiles.ValueMember = "FilePath";
+                    lboxFiles.DisplayMember = "FileName";
+                    lboxFiles.Items.Add(data);
                 }
 
                 if (lboxFiles.Items.Count > 0) {
@@ -170,7 +179,7 @@ namespace XCI_Organizer
 
         private void lboxFiles_SelectedIndexChanged(object sender, EventArgs e) {
             ClearFields();
-            selectedFile = lboxFiles.SelectedItem.ToString();
+            selectedFile = (lboxFiles.SelectedItem as FileData).FilePath;
             if (selectedFile.Trim() != "") {
                 ProcessFile();
             }
