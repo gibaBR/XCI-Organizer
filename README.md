@@ -23,8 +23,8 @@ Manage your XCI library easily
 * Run `XCI-Organizer.exe`
 
 ## Special Thanks
-klks - CARD2, Hash Validation, bug fixes
-gibaBR - XCI Organizer creator
+* klks - CARD2, Hash Validation, bug fixes
+* gibaBR - XCI Organizer creator
 
 ## Disclaimer
 This is not my original work. I just made minor changes.
