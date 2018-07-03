@@ -204,7 +204,7 @@
             this.groupBox1.Controls.Add(this.B_ClearCert);
             this.groupBox1.Controls.Add(this.B_ImportCert);
             this.groupBox1.Controls.Add(this.B_ExportCert);
-            this.groupBox1.Location = new System.Drawing.Point(10, 155);
+            this.groupBox1.Location = new System.Drawing.Point(137, 155);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(301, 52);
             this.groupBox1.TabIndex = 55;
@@ -533,7 +533,7 @@
             // B_Extract
             // 
             this.B_Extract.Enabled = false;
-            this.B_Extract.Location = new System.Drawing.Point(296, 367);
+            this.B_Extract.Location = new System.Drawing.Point(523, 367);
             this.B_Extract.Name = "B_Extract";
             this.B_Extract.Size = new System.Drawing.Size(48, 23);
             this.B_Extract.TabIndex = 4;
