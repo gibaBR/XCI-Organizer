@@ -48,7 +48,7 @@ namespace XCI_Organizer
 
         public IniFile ini;
         
-            private Image[] Icons = new Image[16];
+        private Image[] Icons = new Image[16];
         private TreeViewFileSystem TV_Parti;
         private BetterTreeNode rootNode;
         public List<char> chars = new List<char>();
@@ -64,12 +64,16 @@ namespace XCI_Organizer
         private long selectedOffset;
         private long selectedSize;
 
-
+        public class FileData
+        {
+            public string FilePath { get; set; }
+            public string FileName { get; set; }
+        }
 
         public Form1() {
             InitializeComponent();
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            this.Text = "XCI Organizer v0.0.1";// + assemblyVersion;
+            this.Text = "XCI Organizer v0.0.3";// + assemblyVersion;
 
             if (!File.Exists("keys.txt")) {
                 if (File.Exists("Get-keys.txt.bat") && MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -138,7 +142,7 @@ namespace XCI_Organizer
         private void btnBaseFolder_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderFileDialog = new FolderBrowserDialog();
-            folderFileDialog.Description = "Select the base folder for your collection";
+            folderFileDialog.Description = "Select the base folder for your collection:";
             if (folderFileDialog.ShowDialog() == DialogResult.OK) {
                 ini.IniWriteValue("Config", "BaseFolder", folderFileDialog.SelectedPath);
                 UpdateFileList();
@@ -149,7 +153,7 @@ namespace XCI_Organizer
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
             contextMenuStrip1.Enabled = false;
 
-            if (selectedPath.Trim() != "") {
+            if (Directory.Exists(selectedPath) && selectedPath.Trim() != "") {
                 txbBaseFolder.Text = selectedPath;
                 lboxFiles.Items.Clear();
                 ClearFields();
@@ -157,8 +161,19 @@ namespace XCI_Organizer
 
                 List<string> files = Util.GetXCIsInFolder(selectedPath);
 
+                // not sure about the performance on large lists
+                foreach(string file in files)
+                {
+                    files = files.OrderBy(a => Path.GetFileNameWithoutExtension(a)).ToList();
+                }
+
                 foreach (string file in files) {
-                    lboxFiles.Items.Add(file);
+                    FileData data = new FileData();
+                    data.FilePath = file;
+                    data.FileName = Path.GetFileNameWithoutExtension(file);
+                    lboxFiles.ValueMember = "FilePath";
+                    lboxFiles.DisplayMember = "FileName";
+                    lboxFiles.Items.Add(data);
                 }
 
                 if (lboxFiles.Items.Count > 0) {
@@ -170,7 +185,7 @@ namespace XCI_Organizer
 
         private void lboxFiles_SelectedIndexChanged(object sender, EventArgs e) {
             ClearFields();
-            selectedFile = lboxFiles.SelectedItem.ToString();
+            selectedFile = (lboxFiles.SelectedItem as FileData).FilePath.ToString();
             if (selectedFile.Trim() != "") {
                 ProcessFile();
             }
@@ -185,13 +200,18 @@ namespace XCI_Organizer
             }
         }
 
+        private void _TrimXCI()
+        {
+            FileStream fileStream = new FileStream(selectedFile, FileMode.Open, FileAccess.Write);
+            fileStream.SetLength((long)UsedSize);
+            fileStream.Close();
+        }
+
         private void TrimXCI() {
             if (Util.checkFile(selectedFile)) {
                 if (MessageBox.Show("Trim XCI?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text)) {
-                        FileStream fileStream = new FileStream(selectedFile, FileMode.Open, FileAccess.Write);
-                        fileStream.SetLength((long)UsedSize);
-                        fileStream.Close();
+                        _TrimXCI();
                         MessageBox.Show("Done.");
                         string[] array = new string[5]
                         {
@@ -359,10 +379,6 @@ namespace XCI_Organizer
             ini = new IniFile((AppDomain.CurrentDomain.BaseDirectory) + "XCI_Organizer.ini");
             UpdateFileList();
             //ini.IniReadValue("Config", "BaseFolder");
-
-/*
-
-*/
         }
 
         private void ClearFields() {
@@ -577,16 +593,6 @@ namespace XCI_Organizer
             PB_GameIcon.BackgroundImage = Icons[num];
             TB_Name.Text = NACP.NACP_Strings[num].GameName;
             TB_Dev.Text = NACP.NACP_Strings[num].GameAuthor;
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txbBaseFolder_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void showInExplorerToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -812,6 +818,10 @@ namespace XCI_Organizer
             B_Extract.Enabled = true;
             btnBaseFolder.Enabled = true;
             B_TrimXCI.Enabled = true;
+            B_ImportCert.Enabled = true;
+            B_ClearCert.Enabled = true;
+            BT_BatchRename.Enabled = true;
+            BT_BatchTrim.Enabled = true;
 
             if (e.Error != null)
             {
@@ -834,12 +844,95 @@ namespace XCI_Organizer
                     B_Extract.Enabled = false;
                     btnBaseFolder.Enabled = false;
                     B_TrimXCI.Enabled = false;
+                    B_ImportCert.Enabled = false;
+                    B_ClearCert.Enabled = false;
+                    BT_BatchRename.Enabled = false;
+                    BT_BatchTrim.Enabled = false;
 
                     // Start the asynchronous operation.
                     backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);
 
                     MessageBox.Show("Extracting NCA\nPlease wait...");
                 }
+            }
+        }
+
+        private void BT_BatchRename_Click(object sender, EventArgs e)
+        {
+            string selectedPath = ini.IniReadValue("Config", "BaseFolder");
+
+            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                List<string> files = Util.GetXCIsInFolder(selectedPath);
+                int counter = 0;
+                lboxFiles.SelectedIndex = counter;
+
+                foreach (string file in files)
+                {
+                    string uncheckedName = TB_Name.Text.ToString();
+                    List<char> invalidChars = new List<char>();
+                    string newName;
+                    string newPath;
+
+                    // Add characters to remove from filename here
+                    invalidChars.AddRange(Path.GetInvalidFileNameChars());
+                    invalidChars.Add('™');
+                    invalidChars.Add('®');
+
+                    newName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
+                    newPath = Path.GetDirectoryName(file) + "\\" + newName;
+
+                    if (!File.Exists(newPath))
+                    {
+                        System.IO.File.Move(file, (newPath + ".xci"));
+                    }
+                    else
+                    {
+                        int append = 1;
+
+                        while(File.Exists(newPath + "_" + append.ToString()))
+                        {
+                            append++;
+                        }
+
+                        newPath = newPath + "_" + append.ToString();
+
+                        System.IO.File.Move(file, (newPath + ".xci"));
+                    }
+
+                    if (++counter < files.Count)
+                    {
+                        lboxFiles.SelectedIndex = counter;
+                    }
+                }
+                UpdateFileList();
+                MessageBox.Show("Batch rename done!");
+            }
+        }
+
+        private void BT_BatchTrim_Click(object sender, EventArgs e)
+        {
+            string selectedPath = ini.IniReadValue("Config", "BaseFolder");
+            List<string> files = Util.GetXCIsInFolder(selectedPath);
+            int counter = 0;
+            lboxFiles.SelectedIndex = counter;
+
+            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                foreach (string file in files)
+                {
+                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text))
+                    {
+                        _TrimXCI();
+                    }
+
+                    if (++counter < files.Count)
+                    {
+                        lboxFiles.SelectedIndex = counter;
+                    }
+                }
+                UpdateFileList();
+                MessageBox.Show("Batch trim done!");
             }
         }
     }

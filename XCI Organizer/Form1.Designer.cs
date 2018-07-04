@@ -80,6 +80,9 @@
             this.LB_DataOffset = new System.Windows.Forms.Label();
             this.LB_SelectedData = new System.Windows.Forms.Label();
             this.TV_Partitions = new System.Windows.Forms.TreeView();
+            this.TABP_TOOLS = new System.Windows.Forms.TabPage();
+            this.BT_BatchTrim = new System.Windows.Forms.Button();
+            this.BT_BatchRename = new System.Windows.Forms.Button();
             this.BT_Refresh = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.contextMenuStrip1.SuspendLayout();
@@ -88,6 +91,7 @@
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PB_GameIcon)).BeginInit();
             this.tabPage2.SuspendLayout();
+            this.TABP_TOOLS.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnBaseFolder
@@ -96,7 +100,7 @@
             this.btnBaseFolder.Name = "btnBaseFolder";
             this.btnBaseFolder.Size = new System.Drawing.Size(113, 23);
             this.btnBaseFolder.TabIndex = 0;
-            this.btnBaseFolder.Text = "Select base folder";
+            this.btnBaseFolder.Text = "Select Game Folder";
             this.btnBaseFolder.UseVisualStyleBackColor = true;
             this.btnBaseFolder.Click += new System.EventHandler(this.btnBaseFolder_Click);
             // 
@@ -108,7 +112,6 @@
             this.txbBaseFolder.Size = new System.Drawing.Size(460, 20);
             this.txbBaseFolder.TabIndex = 1;
             this.txbBaseFolder.TabStop = false;
-            this.txbBaseFolder.TextChanged += new System.EventHandler(this.txbBaseFolder_TextChanged);
             // 
             // lboxFiles
             // 
@@ -155,6 +158,7 @@
             // 
             this.TABC_Main.Controls.Add(this.TABP_XCI);
             this.TABC_Main.Controls.Add(this.tabPage2);
+            this.TABC_Main.Controls.Add(this.TABP_TOOLS);
             this.TABC_Main.Location = new System.Drawing.Point(663, 13);
             this.TABC_Main.Name = "TABC_Main";
             this.TABC_Main.SelectedIndex = 0;
@@ -205,7 +209,7 @@
             this.groupBox1.Controls.Add(this.B_ClearCert);
             this.groupBox1.Controls.Add(this.B_ImportCert);
             this.groupBox1.Controls.Add(this.B_ExportCert);
-            this.groupBox1.Location = new System.Drawing.Point(10, 155);
+            this.groupBox1.Location = new System.Drawing.Point(137, 155);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(301, 52);
             this.groupBox1.TabIndex = 55;
@@ -406,7 +410,6 @@
             this.label2.Size = new System.Drawing.Size(52, 13);
             this.label2.TabIndex = 27;
             this.label2.Text = "Cart Size:";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // PB_GameIcon
             // 
@@ -535,7 +538,7 @@
             // B_Extract
             // 
             this.B_Extract.Enabled = false;
-            this.B_Extract.Location = new System.Drawing.Point(296, 367);
+            this.B_Extract.Location = new System.Drawing.Point(523, 367);
             this.B_Extract.Name = "B_Extract";
             this.B_Extract.Size = new System.Drawing.Size(48, 23);
             this.B_Extract.TabIndex = 4;
@@ -580,6 +583,38 @@
             this.TV_Partitions.TabIndex = 0;
             this.TV_Partitions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TV_Partitions_AfterSelect);
             // 
+            // TABP_TOOLS
+            // 
+            this.TABP_TOOLS.Controls.Add(this.BT_BatchTrim);
+            this.TABP_TOOLS.Controls.Add(this.BT_BatchRename);
+            this.TABP_TOOLS.Location = new System.Drawing.Point(4, 22);
+            this.TABP_TOOLS.Name = "TABP_TOOLS";
+            this.TABP_TOOLS.Padding = new System.Windows.Forms.Padding(3);
+            this.TABP_TOOLS.Size = new System.Drawing.Size(574, 633);
+            this.TABP_TOOLS.TabIndex = 2;
+            this.TABP_TOOLS.Text = "Tools";
+            this.TABP_TOOLS.UseVisualStyleBackColor = true;
+            // 
+            // BT_BatchTrim
+            // 
+            this.BT_BatchTrim.Location = new System.Drawing.Point(216, 68);
+            this.BT_BatchTrim.Name = "BT_BatchTrim";
+            this.BT_BatchTrim.Size = new System.Drawing.Size(153, 23);
+            this.BT_BatchTrim.TabIndex = 1;
+            this.BT_BatchTrim.Text = "Batch Trim XCI";
+            this.BT_BatchTrim.UseVisualStyleBackColor = true;
+            this.BT_BatchTrim.Click += new System.EventHandler(this.BT_BatchTrim_Click);
+            // 
+            // BT_BatchRename
+            // 
+            this.BT_BatchRename.Location = new System.Drawing.Point(216, 22);
+            this.BT_BatchRename.Name = "BT_BatchRename";
+            this.BT_BatchRename.Size = new System.Drawing.Size(153, 23);
+            this.BT_BatchRename.TabIndex = 0;
+            this.BT_BatchRename.Text = "Batch Rename XCI";
+            this.BT_BatchRename.UseVisualStyleBackColor = true;
+            this.BT_BatchRename.Click += new System.EventHandler(this.BT_BatchRename_Click);
+            // 
             // BT_Refresh
             // 
             this.BT_Refresh.Location = new System.Drawing.Point(587, 13);
@@ -619,6 +654,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.PB_GameIcon)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            this.TABP_TOOLS.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -678,6 +714,9 @@
         private System.Windows.Forms.ToolStripMenuItem sendToSDCardToolStripMenuItem;
         private System.Windows.Forms.Button BT_Refresh;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.TabPage TABP_TOOLS;
+        private System.Windows.Forms.Button BT_BatchRename;
+        private System.Windows.Forms.Button BT_BatchTrim;
     }
 }
 
