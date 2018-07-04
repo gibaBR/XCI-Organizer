@@ -808,7 +808,6 @@ namespace XCI_Organizer {
 
                 //Make sure lboxFiles is up to date to match files
                 UpdateFileList(ref files);
-                MessageBox.Show(files.Count.ToString());
                 lboxFiles.SelectedIndex = counter;
 
                 foreach (string file in files) {
