@@ -73,7 +73,7 @@ namespace XCI_Organizer
         public Form1() {
             InitializeComponent();
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            this.Text = "XCI Organizer v0.0.2";// + assemblyVersion;
+            this.Text = "XCI Organizer v0.0.3";// + assemblyVersion;
 
             if (!File.Exists("keys.txt")) {
                 if (File.Exists("Get-keys.txt.bat") && MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -153,13 +153,19 @@ namespace XCI_Organizer
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
             contextMenuStrip1.Enabled = false;
 
-            if (selectedPath.Trim() != "") {
+            if (Directory.Exists(selectedPath) && selectedPath.Trim() != "") {
                 txbBaseFolder.Text = selectedPath;
                 lboxFiles.Items.Clear();
                 ClearFields();
                 string[] directories = Directory.GetDirectories(selectedPath);
 
                 List<string> files = Util.GetXCIsInFolder(selectedPath);
+
+                // not sure about the performance on large lists
+                foreach(string file in files)
+                {
+                    files = files.OrderBy(a => Path.GetFileNameWithoutExtension(a)).ToList();
+                }
 
                 foreach (string file in files) {
                     FileData data = new FileData();
@@ -179,7 +185,7 @@ namespace XCI_Organizer
 
         private void lboxFiles_SelectedIndexChanged(object sender, EventArgs e) {
             ClearFields();
-            selectedFile = (lboxFiles.SelectedItem as FileData).FilePath;
+            selectedFile = (lboxFiles.SelectedItem as FileData).FilePath.ToString();
             if (selectedFile.Trim() != "") {
                 ProcessFile();
             }
@@ -194,13 +200,18 @@ namespace XCI_Organizer
             }
         }
 
+        private void _TrimXCI()
+        {
+            FileStream fileStream = new FileStream(selectedFile, FileMode.Open, FileAccess.Write);
+            fileStream.SetLength((long)UsedSize);
+            fileStream.Close();
+        }
+
         private void TrimXCI() {
             if (Util.checkFile(selectedFile)) {
                 if (MessageBox.Show("Trim XCI?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text)) {
-                        FileStream fileStream = new FileStream(selectedFile, FileMode.Open, FileAccess.Write);
-                        fileStream.SetLength((long)UsedSize);
-                        fileStream.Close();
+                        _TrimXCI();
                         MessageBox.Show("Done.");
                         string[] array = new string[5]
                         {
@@ -839,6 +850,85 @@ namespace XCI_Organizer
 
                     MessageBox.Show("Extracting NCA\nPlease wait...");
                 }
+            }
+        }
+
+        private void BT_RenameXCI_Click(object sender, EventArgs e)
+        {
+            string selectedPath = ini.IniReadValue("Config", "BaseFolder");
+
+            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                List<string> files = Util.GetXCIsInFolder(selectedPath);
+                int counter = 0;
+                lboxFiles.SelectedIndex = counter;
+
+                foreach (string file in files)
+                {
+                    string uncheckedName = TB_Name.Text.ToString();
+                    List<char> invalidChars = new List<char>();
+                    string newName;
+                    string newPath;
+
+                    // Add characters to remove from filename here
+                    invalidChars.AddRange(Path.GetInvalidFileNameChars());
+                    invalidChars.Add('™');
+                    invalidChars.Add('®');
+
+                    newName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
+                    newPath = Path.GetDirectoryName(file) + "\\" + newName;
+
+                    if (!File.Exists(newPath))
+                    {
+                        System.IO.File.Move(file, (newPath + ".xci"));
+                    }
+                    else
+                    {
+                        int append = 1;
+
+                        while(File.Exists(newPath + "_" + append.ToString()))
+                        {
+                            append++;
+                        }
+
+                        newPath = newPath + "_" + append.ToString();
+
+                        System.IO.File.Move(file, (newPath + ".xci"));
+                    }
+
+                    if (++counter < files.Count)
+                    {
+                        lboxFiles.SelectedIndex = counter;
+                    }
+                }
+                UpdateFileList();
+                MessageBox.Show("Batch rename done!");
+            }
+        }
+
+        private void BT_BatchTrimXCI_Click(object sender, EventArgs e)
+        {
+            string selectedPath = ini.IniReadValue("Config", "BaseFolder");
+            List<string> files = Util.GetXCIsInFolder(selectedPath);
+            int counter = 0;
+            lboxFiles.SelectedIndex = counter;
+
+            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                foreach (string file in files)
+                {
+                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text))
+                    {
+                        _TrimXCI();
+                    }
+
+                    if (++counter < files.Count)
+                    {
+                        lboxFiles.SelectedIndex = counter;
+                    }
+                }
+                UpdateFileList();
+                MessageBox.Show("Batch trim done!");
             }
         }
     }

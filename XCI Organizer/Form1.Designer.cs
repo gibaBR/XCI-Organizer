@@ -80,14 +80,18 @@
             this.LB_DataOffset = new System.Windows.Forms.Label();
             this.LB_SelectedData = new System.Windows.Forms.Label();
             this.TV_Partitions = new System.Windows.Forms.TreeView();
+            this.TABP_TOOLS = new System.Windows.Forms.TabPage();
+            this.BT_RenameXCI = new System.Windows.Forms.Button();
             this.BT_Refresh = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.BT_BatchTrimXCI = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PB_GameIcon)).BeginInit();
             this.tabPage2.SuspendLayout();
+            this.TABP_TOOLS.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnBaseFolder
@@ -154,6 +158,7 @@
             // 
             this.TABC_Main.Controls.Add(this.TABP_XCI);
             this.TABC_Main.Controls.Add(this.tabPage2);
+            this.TABC_Main.Controls.Add(this.TABP_TOOLS);
             this.TABC_Main.Location = new System.Drawing.Point(663, 13);
             this.TABC_Main.Name = "TABC_Main";
             this.TABC_Main.SelectedIndex = 0;
@@ -578,6 +583,28 @@
             this.TV_Partitions.TabIndex = 0;
             this.TV_Partitions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TV_Partitions_AfterSelect);
             // 
+            // TABP_TOOLS
+            // 
+            this.TABP_TOOLS.Controls.Add(this.BT_BatchTrimXCI);
+            this.TABP_TOOLS.Controls.Add(this.BT_RenameXCI);
+            this.TABP_TOOLS.Location = new System.Drawing.Point(4, 22);
+            this.TABP_TOOLS.Name = "TABP_TOOLS";
+            this.TABP_TOOLS.Padding = new System.Windows.Forms.Padding(3);
+            this.TABP_TOOLS.Size = new System.Drawing.Size(574, 633);
+            this.TABP_TOOLS.TabIndex = 2;
+            this.TABP_TOOLS.Text = "Tools";
+            this.TABP_TOOLS.UseVisualStyleBackColor = true;
+            // 
+            // BT_RenameXCI
+            // 
+            this.BT_RenameXCI.Location = new System.Drawing.Point(216, 22);
+            this.BT_RenameXCI.Name = "BT_RenameXCI";
+            this.BT_RenameXCI.Size = new System.Drawing.Size(153, 23);
+            this.BT_RenameXCI.TabIndex = 0;
+            this.BT_RenameXCI.Text = "Batch Rename XCI";
+            this.BT_RenameXCI.UseVisualStyleBackColor = true;
+            this.BT_RenameXCI.Click += new System.EventHandler(this.BT_RenameXCI_Click);
+            // 
             // BT_Refresh
             // 
             this.BT_Refresh.Location = new System.Drawing.Point(587, 13);
@@ -592,6 +619,16 @@
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            // 
+            // BT_BatchTrimXCI
+            // 
+            this.BT_BatchTrimXCI.Location = new System.Drawing.Point(216, 68);
+            this.BT_BatchTrimXCI.Name = "BT_BatchTrimXCI";
+            this.BT_BatchTrimXCI.Size = new System.Drawing.Size(153, 23);
+            this.BT_BatchTrimXCI.TabIndex = 1;
+            this.BT_BatchTrimXCI.Text = "Batch Trim XCI";
+            this.BT_BatchTrimXCI.UseVisualStyleBackColor = true;
+            this.BT_BatchTrimXCI.Click += new System.EventHandler(this.BT_BatchTrimXCI_Click);
             // 
             // Form1
             // 
@@ -617,6 +654,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.PB_GameIcon)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            this.TABP_TOOLS.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -676,6 +714,9 @@
         private System.Windows.Forms.ToolStripMenuItem sendToSDCardToolStripMenuItem;
         private System.Windows.Forms.Button BT_Refresh;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.TabPage TABP_TOOLS;
+        private System.Windows.Forms.Button BT_RenameXCI;
+        private System.Windows.Forms.Button BT_BatchTrimXCI;
     }
 }
 
