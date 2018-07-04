@@ -863,80 +863,58 @@ namespace XCI_Organizer
 
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                List<string> files = Util.GetXCIsInFolder(selectedPath);
+                //List<string> files = Util.GetXCIsInFolder(selectedPath);
                 int counter = 0;
                 lboxFiles.SelectedIndex = counter;
 
-                foreach (string file in files)
+                System.Windows.Forms.ListBox.ObjectCollection list = lboxFiles.Items;
+                
+                //Copy items list because using lbox directly was causing trouble 
+                System.Windows.Forms.ListBox.ObjectCollection list_ = new System.Windows.Forms.ListBox.ObjectCollection(lboxFiles);
+                foreach (FileData fileData in list)
                 {
-                    Util.RenameFile(file, TB_Name.Text.ToString());
-
-/*
-                    string uncheckedName = TB_Name.Text.ToString();
-                    List<char> invalidChars = new List<char>();
-                    string newName;
-                    string newPath;
-
-                    // Add characters to remove from filename here
-                    invalidChars.AddRange(Path.GetInvalidFileNameChars());
-                    invalidChars.Add('™');
-                    invalidChars.Add('®');
-
-                    newName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
-                    newPath = Path.GetDirectoryName(file) + "\\" + newName;
-
-                    if (!File.Exists(newPath))
-                    {
-                        System.IO.File.Move(file, (newPath + ".xci"));
-                    }
-                    else
-                    {
-                        int append = 1;
-
-                        while(File.Exists(newPath + "_" + append.ToString()))
-                        {
-                            append++;
-                        }
-
-                        newPath = newPath + "_" + append.ToString();
-
-                        System.IO.File.Move(file, (newPath + ".xci"));
-                    }
-*/
-                    if (++counter < files.Count)
-                    {
-                        lboxFiles.SelectedIndex = counter;
-                    }
+                    list_.Add(fileData);
                 }
+
+                foreach (FileData fileData in list_)
+                {
+                    lboxFiles.SelectedIndex = counter;
+                    counter++;
+
+                    Util.RenameFile((lboxFiles.SelectedItem as FileData).FilePath, TB_Name.Text.ToString());
+                }
+
                 UpdateFileList();
-                MessageBox.Show("Batch rename done!");
-            }
+            }            
         }
 
         private void BT_BatchTrim_Click(object sender, EventArgs e)
         {
-            string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-            List<string> files = Util.GetXCIsInFolder(selectedPath);
-            int counter = 0;
-            lboxFiles.SelectedIndex = counter;
-
-            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
-            {
-                foreach (string file in files)
-                {
-                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text))
-                    {
-                        _TrimXCI();
-                    }
-
-                    if (++counter < files.Count)
-                    {
+            MessageBox.Show("Soon™");
+            /* NEEDS MORE TEST!!!! 
+                        string selectedPath = ini.IniReadValue("Config", "BaseFolder");
+                        List<string> files = Util.GetXCIsInFolder(selectedPath);
+                        int counter = 0;
                         lboxFiles.SelectedIndex = counter;
-                    }
-                }
-                UpdateFileList();
-                MessageBox.Show("Batch trim done!");
-            }
+
+                        if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            foreach (string file in files)
+                            {
+                                if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text))
+                                {
+                                    _TrimXCI();
+                                }
+
+                                if (++counter < files.Count)
+                                {
+                                    lboxFiles.SelectedIndex = counter;
+                                }
+                            }
+                            UpdateFileList();
+                            MessageBox.Show("Batch trim done!");
+                        }
+            */
         }
 
         private void autoRenameFileToolStripMenuItem_Click(object sender, EventArgs e)
