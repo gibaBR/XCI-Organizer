@@ -820,6 +820,8 @@ namespace XCI_Organizer
             B_TrimXCI.Enabled = true;
             B_ImportCert.Enabled = true;
             B_ClearCert.Enabled = true;
+            BT_BatchRename.Enabled = true;
+            BT_BatchTrim.Enabled = true;
 
             if (e.Error != null)
             {
@@ -844,6 +846,8 @@ namespace XCI_Organizer
                     B_TrimXCI.Enabled = false;
                     B_ImportCert.Enabled = false;
                     B_ClearCert.Enabled = false;
+                    BT_BatchRename.Enabled = false;
+                    BT_BatchTrim.Enabled = false;
 
                     // Start the asynchronous operation.
                     backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);
@@ -853,7 +857,7 @@ namespace XCI_Organizer
             }
         }
 
-        private void BT_RenameXCI_Click(object sender, EventArgs e)
+        private void BT_BatchRename_Click(object sender, EventArgs e)
         {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
 
@@ -906,7 +910,7 @@ namespace XCI_Organizer
             }
         }
 
-        private void BT_BatchTrimXCI_Click(object sender, EventArgs e)
+        private void BT_BatchTrim_Click(object sender, EventArgs e)
         {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
             List<string> files = Util.GetXCIsInFolder(selectedPath);
