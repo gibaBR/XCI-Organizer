@@ -68,8 +68,13 @@ namespace XCI_Organizer {
 
         public Form1() {
             InitializeComponent();
+
+            const int NUMBERSINVERSION = 3;
+
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            this.Text = "XCI Organizer v0.0.3";// + assemblyVersion;
+            string[] versionArray = assemblyVersion.Split('.');
+            assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
+            this.Text = "XCI Organizer v" + assemblyVersion;
 
             if (!File.Exists("keys.txt")) {
                 if (File.Exists("Get-keys.txt.bat") && MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
