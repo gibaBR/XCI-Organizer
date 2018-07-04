@@ -143,6 +143,7 @@ namespace XCI_Organizer {
         }
 
         public static bool RenameFile(string filepath, string newName) {
+            // Needs to be updated
             if (checkFile(filepath)) {
                 string uncheckedName = newName;
                 List<char> invalidChars = new List<char>();
@@ -159,11 +160,12 @@ namespace XCI_Organizer {
 
                 if (!File.Exists(newPath)) {
                     System.IO.File.Move(filepath, (newPath + ".xci"));
+
                 }
                 else {
                     int append = 1;
 
-                    while (File.Exists(newPath + "_" + append.ToString())) {
+                    while (append < 5 && File.Exists(newPath + "_" + append.ToString())) {
                         append++;
                     }
 

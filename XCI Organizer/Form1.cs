@@ -158,7 +158,7 @@ namespace XCI_Organizer {
 
                 files = Util.GetXCIsInFolder(selectedPath);
 
-                // not sure about the performance on large lists
+                // Not sure about the performance on large lists
                 foreach (string file in files) {
                     files = files.OrderBy(a => Path.GetFileNameWithoutExtension(a)).ToList();
                 }
@@ -300,11 +300,19 @@ namespace XCI_Organizer {
                 using (FileStream fileStream = File.OpenRead(selectedFile)) {
                     for (int si = 0; si < SecureSize.Length; si++) {
                         if (SecureSize[si] > 0x4E20000) continue;
-                        try {
+                        /*try {
                             File.Delete("meta");
                             Directory.Delete("data", true);
                         }
                         catch { }
+                        */
+                        if (File.Exists("meta")) {
+                            File.Delete("meta");
+                        }
+
+                        if (Directory.Exists("data")) {
+                            Directory.Delete("data", true);
+                        }
 
                         using (FileStream fileStream2 = File.OpenWrite("meta")) {
                             fileStream.Position = SecureOffset[si];
@@ -800,37 +808,86 @@ namespace XCI_Organizer {
         }
 
         private void BT_BatchRename_Click(object sender, EventArgs e) {
+            // Added back into main function because I was trying to debug it. Needs to be added into Util again
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-
-            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
-                List<string> files = new List<string>();
+            
+            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?\n\nNote: This is not perfect and doesn't include any extra information except the game title", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                BT_BatchRename.Enabled = false;
+                BT_BatchTrim.Enabled = false;
+                /* Blake's version of trying not to get confused (tm)
+                 * 
+                 * "files" looks like "P:/ath/random.xci"
+                 * "renamedFiles" looks like "FixedRandom"
+                 * Duplicates look like "FixedRandom_yy.."
+                 * 
+                 * We need renamedFiles to just be the filename because some files with same name are located in different folders
+                */
+                List<string> files = new List<string>(); // Same file list from UpdateFileList
+                List<string> renamedFiles = new List<string>(); // Add renamed files to new list so duplicates aren't created
+                List<char> invalidChars = new List<char>(); // Custom list of invalid characters
                 int counter = 0;
 
-                //Make sure lboxFiles is up to date to match files
+                // Uses the same exact files list from UpdateFileList function
                 UpdateFileList(ref files);
                 lboxFiles.SelectedIndex = counter;
 
-                foreach (string file in files) {
-                    lboxFiles.SelectedIndex = counter;
-                    counter++;
+                // Add characters to remove from filename here
+                invalidChars.AddRange(Path.GetInvalidFileNameChars());
+                invalidChars.Add('™');
+                invalidChars.Add('®');
 
-                    if (File.Exists((lboxFiles.SelectedItem as FileData).FilePath)) {
-                        Util.RenameFile((lboxFiles.SelectedItem as FileData).FilePath, TB_Name.Text.ToString());
+                foreach (string file in files) {
+                    string uncheckedName = TB_Name.Text.ToString();
+                    string checkedName;
+                    string newPath;
+
+                    checkedName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
+                    newPath = Path.GetDirectoryName(file) + "\\" + checkedName;
+
+                    if (!renamedFiles.Contains(checkedName) && File.Exists(file) && !File.Exists(newPath)) {
+                        System.IO.File.Move(file, (newPath + ".xci"));
+                        renamedFiles.Add(checkedName);
+                    }
+                    else {
+                        /* This is a temporary renaming scheme until we can include region and other unique information
+                         * This will rename duplicate XCI (doesn't matter if they're different regions) and append "_DATESCHEME"
+                         */
+                        // Check if the file has already been renamed according to date naming scheme
+                        bool alreadyRenamed = file.Contains(newPath + "_" + DateTime.Now.ToString("yy"));
+
+                        // Build new path using the date naming scheme
+                        newPath = newPath + "_" + DateTime.Now.ToString("yyMMddHHmmssffffff");
+
+                        // Only rename the file if it hasn't been renamed according to date naming scheme
+                        if (!File.Exists(newPath) && !alreadyRenamed) {
+                            try {
+                                System.IO.File.Move(file, (newPath + ".xci"));
+                            }
+                            catch { }
+                        }
+                    }
+
+                    if (++counter < files.Count) {
+                        lboxFiles.SelectedIndex = counter;
                     }
                 }
                 UpdateFileList();
+                BT_BatchRename.Enabled = true;
+                BT_BatchTrim.Enabled = true;
                 MessageBox.Show("Batch rename done!");
             }
         }
 
         private void BT_BatchTrim_Click(object sender, EventArgs e) {
+            // This should be safe now because it uses the same files list from UpdateFileList
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
 
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                BT_BatchTrim.Enabled = false;
+                BT_BatchRename.Enabled = false;
                 List<string> files = new List<string>();
                 int counter = 0;
 
-                //Make sure lboxFiles is up to date to match files
                 UpdateFileList(ref files);
                 lboxFiles.SelectedIndex = counter;
 
@@ -844,13 +901,26 @@ namespace XCI_Organizer {
                     }
                 }
                 UpdateFileList();
+                BT_BatchTrim.Enabled = true;
+                BT_BatchRename.Enabled = true;
                 MessageBox.Show("Batch trim done!");
             }
         }
 
         private void autoRenameFileToolStripMenuItem_Click(object sender, EventArgs e) {
-            Util.RenameFile(selectedFile, TB_Name.Text.ToString());
-            UpdateFileList();
+            // The util function needs to be refactored
+            MessageBox.Show("Soon®");
+        }
+
+        private void PB_GameIcon_Click(object sender, EventArgs e) {
+            // This needs a lot more work and probably will depend on code from the renamer once it's finished
+            if (MessageBox.Show("Are you sure you want to save the current icon image?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                int num = Array.FindIndex(Language, (string element) => element.StartsWith(CB_RegionName.Text, StringComparison.Ordinal));
+                string iconFile = "icon_" + DateTime.Now.ToString("yyyyMMddHHmmssffffff") + ".jpg";
+
+                Bitmap copy = new Bitmap(Icons[num]);
+                copy.Save(iconFile, System.Drawing.Imaging.ImageFormat.Jpeg);
+            }
         }
     }
 }

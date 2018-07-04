@@ -37,6 +37,7 @@
             this.showInExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trimXCIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sendToSDCardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.autoRenameFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TABC_Main = new System.Windows.Forms.TabControl();
             this.TABP_XCI = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -85,7 +86,6 @@
             this.BT_BatchRename = new System.Windows.Forms.Button();
             this.BT_Refresh = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.autoRenameFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -133,28 +133,35 @@
             this.sendToSDCardToolStripMenuItem,
             this.autoRenameFileToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 114);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(168, 92);
             // 
             // showInExplorerToolStripMenuItem
             // 
             this.showInExplorerToolStripMenuItem.Name = "showInExplorerToolStripMenuItem";
-            this.showInExplorerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.showInExplorerToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.showInExplorerToolStripMenuItem.Text = "Show in Explorer";
             this.showInExplorerToolStripMenuItem.Click += new System.EventHandler(this.showInExplorerToolStripMenuItem_Click);
             // 
             // trimXCIToolStripMenuItem
             // 
             this.trimXCIToolStripMenuItem.Name = "trimXCIToolStripMenuItem";
-            this.trimXCIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.trimXCIToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.trimXCIToolStripMenuItem.Text = "Trim XCI";
             this.trimXCIToolStripMenuItem.Click += new System.EventHandler(this.trimXCIToolStripMenuItem_Click);
             // 
             // sendToSDCardToolStripMenuItem
             // 
             this.sendToSDCardToolStripMenuItem.Name = "sendToSDCardToolStripMenuItem";
-            this.sendToSDCardToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.sendToSDCardToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.sendToSDCardToolStripMenuItem.Text = "Send to SD Card";
             this.sendToSDCardToolStripMenuItem.Click += new System.EventHandler(this.sendToSDCardToolStripMenuItem_Click);
+            // 
+            // autoRenameFileToolStripMenuItem
+            // 
+            this.autoRenameFileToolStripMenuItem.Name = "autoRenameFileToolStripMenuItem";
+            this.autoRenameFileToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.autoRenameFileToolStripMenuItem.Text = "Auto Rename File";
+            this.autoRenameFileToolStripMenuItem.Click += new System.EventHandler(this.autoRenameFileToolStripMenuItem_Click);
             // 
             // TABC_Main
             // 
@@ -421,6 +428,7 @@
             this.PB_GameIcon.Size = new System.Drawing.Size(399, 399);
             this.PB_GameIcon.TabIndex = 26;
             this.PB_GameIcon.TabStop = false;
+            this.PB_GameIcon.Click += new System.EventHandler(this.PB_GameIcon_Click);
             // 
             // TB_Dev
             // 
@@ -603,7 +611,7 @@
             this.BT_BatchTrim.Name = "BT_BatchTrim";
             this.BT_BatchTrim.Size = new System.Drawing.Size(153, 23);
             this.BT_BatchTrim.TabIndex = 1;
-            this.BT_BatchTrim.Text = "Batch Trim XCI";
+            this.BT_BatchTrim.Text = "[BETA] Batch Trim XCI";
             this.BT_BatchTrim.UseVisualStyleBackColor = true;
             this.BT_BatchTrim.Click += new System.EventHandler(this.BT_BatchTrim_Click);
             // 
@@ -613,7 +621,7 @@
             this.BT_BatchRename.Name = "BT_BatchRename";
             this.BT_BatchRename.Size = new System.Drawing.Size(153, 23);
             this.BT_BatchRename.TabIndex = 0;
-            this.BT_BatchRename.Text = "Batch Rename XCI";
+            this.BT_BatchRename.Text = "[BETA] Batch Rename XCI";
             this.BT_BatchRename.UseVisualStyleBackColor = true;
             this.BT_BatchRename.Click += new System.EventHandler(this.BT_BatchRename_Click);
             // 
@@ -631,13 +639,6 @@
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-            // 
-            // autoRenameFileToolStripMenuItem
-            // 
-            this.autoRenameFileToolStripMenuItem.Name = "autoRenameFileToolStripMenuItem";
-            this.autoRenameFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.autoRenameFileToolStripMenuItem.Text = "Auto Rename File";
-            this.autoRenameFileToolStripMenuItem.Click += new System.EventHandler(this.autoRenameFileToolStripMenuItem_Click);
             // 
             // Form1
             // 
