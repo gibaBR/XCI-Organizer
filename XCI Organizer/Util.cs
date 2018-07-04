@@ -144,5 +144,43 @@ namespace XCI_Organizer {
             }
             return false;
         }
+
+        public static bool RenameFile(string filepath, string newName)
+        {
+            if (checkFile(filepath))
+            {
+                string uncheckedName = newName;
+                List<char> invalidChars = new List<char>();
+                string _newName;
+                string newPath;
+
+                // Add characters to remove from filename here
+                invalidChars.AddRange(Path.GetInvalidFileNameChars());
+                invalidChars.Add('™');
+                invalidChars.Add('®');
+
+                _newName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
+                newPath = Path.GetDirectoryName(filepath) + "\\" + _newName;
+
+                if (!File.Exists(newPath))
+                {
+                    System.IO.File.Move(filepath, (newPath + ".xci"));
+                }
+                else
+                {
+                    int append = 1;
+
+                    while (File.Exists(newPath + "_" + append.ToString()))
+                    {
+                        append++;
+                    }
+
+                    newPath = newPath + "_" + append.ToString();
+
+                    System.IO.File.Move(filepath, (newPath + ".xci"));
+                }
+            }
+            return false;
+        }
     }
 }

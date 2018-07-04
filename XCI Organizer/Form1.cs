@@ -869,6 +869,9 @@ namespace XCI_Organizer
 
                 foreach (string file in files)
                 {
+                    Util.RenameFile(file, TB_Name.Text.ToString());
+
+/*
                     string uncheckedName = TB_Name.Text.ToString();
                     List<char> invalidChars = new List<char>();
                     string newName;
@@ -899,7 +902,7 @@ namespace XCI_Organizer
 
                         System.IO.File.Move(file, (newPath + ".xci"));
                     }
-
+*/
                     if (++counter < files.Count)
                     {
                         lboxFiles.SelectedIndex = counter;
@@ -934,6 +937,12 @@ namespace XCI_Organizer
                 UpdateFileList();
                 MessageBox.Show("Batch trim done!");
             }
+        }
+
+        private void autoRenameFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Util.RenameFile(selectedFile, TB_Name.Text.ToString());
+            UpdateFileList();
         }
     }
 }
