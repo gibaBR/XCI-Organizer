@@ -5,14 +5,12 @@ using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace XCI_Organizer.HexBox
-{
+namespace XCI_Organizer.HexBox {
     /// <summary>
     /// Defines a build-in ContextMenuStrip manager for HexBox control to show Copy, Cut, Paste menu in contextmenu of the control.
     /// </summary>
     [TypeConverterAttribute(typeof(ExpandableObjectConverter))]
-    public sealed class BuiltInContextMenu : Component
-    {
+    public sealed class BuiltInContextMenu : Component {
         /// <summary>
         /// Contains the HexBox control.
         /// </summary>
@@ -41,8 +39,7 @@ namespace XCI_Organizer.HexBox
         /// Initializes a new instance of BuildInContextMenu class.
         /// </summary>
         /// <param name="hexBox">the HexBox control</param>
-        internal BuiltInContextMenu(HexBox hexBox)
-        {
+        internal BuiltInContextMenu(HexBox hexBox) {
             _hexBox = hexBox;
             _hexBox.ByteProviderChanged += new EventHandler(HexBox_ByteProviderChanged);
         }
@@ -51,20 +48,17 @@ namespace XCI_Organizer.HexBox
         /// </summary>
         /// <param name="sender">the sender object</param>
         /// <param name="e">the event data</param>
-        void HexBox_ByteProviderChanged(object sender, EventArgs e)
-        {
+        void HexBox_ByteProviderChanged(object sender, EventArgs e) {
             CheckBuiltInContextMenu();
         }
         /// <summary>
         /// Assigns the ContextMenuStrip control to the HexBox control.
         /// </summary>
-        void CheckBuiltInContextMenu()
-        {
+        void CheckBuiltInContextMenu() {
             if (Util.DesignMode)
                 return;
 
-            if (this._contextMenuStrip == null)
-            {
+            if (this._contextMenuStrip == null) {
                 ContextMenuStrip cms = new ContextMenuStrip();
                 _cutToolStripMenuItem = new ToolStripMenuItem(CutMenuItemTextInternal, CutMenuItemImage, new EventHandler(CutMenuItem_Click));
                 cms.Items.Add(_cutToolStripMenuItem);
@@ -92,8 +86,7 @@ namespace XCI_Organizer.HexBox
         /// </summary>
         /// <param name="sender">the sender object</param>
         /// <param name="e">the event data</param>
-        void BuildInContextMenuStrip_Opening(object sender, CancelEventArgs e)
-        {
+        void BuildInContextMenuStrip_Opening(object sender, CancelEventArgs e) {
             _cutToolStripMenuItem.Enabled = this._hexBox.CanCut();
             _copyToolStripMenuItem.Enabled = this._hexBox.CanCopy();
             _pasteToolStripMenuItem.Enabled = this._hexBox.CanPaste();
@@ -127,8 +120,7 @@ namespace XCI_Organizer.HexBox
         /// Gets or sets the custom text of the "Copy" ContextMenuStrip item.
         /// </summary>
         [Category("BuiltIn-ContextMenu"), DefaultValue(null), Localizable(true)]
-        public string CopyMenuItemText
-        {
+        public string CopyMenuItemText {
             get { return _copyMenuItemText; }
             set { _copyMenuItemText = value; }
         }
@@ -138,8 +130,7 @@ namespace XCI_Organizer.HexBox
         /// Gets or sets the custom text of the "Cut" ContextMenuStrip item.
         /// </summary>
         [Category("BuiltIn-ContextMenu"), DefaultValue(null), Localizable(true)]
-        public string CutMenuItemText
-        {
+        public string CutMenuItemText {
             get { return _cutMenuItemText; }
             set { _cutMenuItemText = value; }
         }
@@ -149,8 +140,7 @@ namespace XCI_Organizer.HexBox
         /// Gets or sets the custom text of the "Paste" ContextMenuStrip item.
         /// </summary>
         [Category("BuiltIn-ContextMenu"), DefaultValue(null), Localizable(true)]
-        public string PasteMenuItemText
-        {
+        public string PasteMenuItemText {
             get { return _pasteMenuItemText; }
             set { _pasteMenuItemText = value; }
         }
@@ -160,8 +150,7 @@ namespace XCI_Organizer.HexBox
         /// Gets or sets the custom text of the "Select All" ContextMenuStrip item.
         /// </summary>
         [Category("BuiltIn-ContextMenu"), DefaultValue(null), Localizable(true)]
-        public string SelectAllMenuItemText
-        {
+        public string SelectAllMenuItemText {
             get { return _selectAllMenuItemText; }
             set { _selectAllMenuItemText = value; }
         }
@@ -188,8 +177,7 @@ namespace XCI_Organizer.HexBox
         /// Gets or sets the image of the "Cut" ContextMenuStrip item.
         /// </summary>
         [Category("BuiltIn-ContextMenu"), DefaultValue(null)]
-        public Image CutMenuItemImage
-        {
+        public Image CutMenuItemImage {
             get { return _cutMenuItemImage; }
             set { _cutMenuItemImage = value; }
         }
@@ -198,8 +186,7 @@ namespace XCI_Organizer.HexBox
         /// Gets or sets the image of the "Copy" ContextMenuStrip item.
         /// </summary>
         [Category("BuiltIn-ContextMenu"), DefaultValue(null)]
-        public Image CopyMenuItemImage
-        {
+        public Image CopyMenuItemImage {
             get { return _copyMenuItemImage; }
             set { _copyMenuItemImage = value; }
         }
@@ -208,8 +195,7 @@ namespace XCI_Organizer.HexBox
         /// Gets or sets the image of the "Paste" ContextMenuStrip item.
         /// </summary>
         [Category("BuiltIn-ContextMenu"), DefaultValue(null)]
-        public Image PasteMenuItemImage
-        {
+        public Image PasteMenuItemImage {
             get { return _pasteMenuItemImage; }
             set { _pasteMenuItemImage = value; }
         }
@@ -218,8 +204,7 @@ namespace XCI_Organizer.HexBox
         /// Gets or sets the image of the "Select All" ContextMenuStrip item.
         /// </summary>
         [Category("BuiltIn-ContextMenu"), DefaultValue(null)]
-        public Image SelectAllMenuItemImage
-        {
+        public Image SelectAllMenuItemImage {
             get { return _selectAllMenuItemImage; }
             set { _selectAllMenuItemImage = value; }
         }

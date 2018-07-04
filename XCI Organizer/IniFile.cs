@@ -3,14 +3,12 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace XCI_Organizer
-{
+namespace XCI_Organizer {
     //Source: https://www.codeproject.com/Articles/1966/An-INI-file-handling-class-using-C
     /// <summary>
     /// Create a New INI file to store or load data
     /// </summary>
-    public class IniFile
-    {
+    public class IniFile {
         public string path;
 
         [DllImport("kernel32")]
@@ -26,7 +24,7 @@ namespace XCI_Organizer
         /// </summary>
         /// <PARAM name="INIPath"></PARAM>
         public IniFile(string INIPath) {
-            
+
             //Create an empty file if it cant be found.
             if (!File.Exists(INIPath)) {
                 File.Create(INIPath).Dispose();
@@ -43,8 +41,7 @@ namespace XCI_Organizer
         /// Key Name
         /// <PARAM name="Value"></PARAM>
         /// Value Name
-        public void IniWriteValue(string Section, string Key, string Value)
-        {
+        public void IniWriteValue(string Section, string Key, string Value) {
             WritePrivateProfileString(Section, Key, Value, this.path);
         }
 
@@ -55,8 +52,7 @@ namespace XCI_Organizer
         /// <PARAM name="Key"></PARAM>
         /// <PARAM name="Path"></PARAM>
         /// <returns></returns>
-        public string IniReadValue(string Section, string Key)
-        {
+        public string IniReadValue(string Section, string Key) {
             StringBuilder temp = new StringBuilder(255);
             int i = GetPrivateProfileString(Section, Key, "", temp,
                                             255, this.path);

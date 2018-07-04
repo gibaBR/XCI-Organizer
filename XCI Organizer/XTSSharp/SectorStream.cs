@@ -1,18 +1,13 @@
 ﻿using System;
 using System.IO;
 
-namespace XCI_Organizer.XTSSharp
-{
-    public class SectorStream : Stream
-    {
+namespace XCI_Organizer.XTSSharp {
+    public class SectorStream : Stream {
         private readonly Stream _baseStream;
-
         private readonly long _offset;
-
         private ulong _currentSector;
 
-        public int SectorSize
-        {
+        public int SectorSize {
             get;
             private set;
         }
@@ -25,14 +20,11 @@ namespace XCI_Organizer.XTSSharp
 
         public override long Length => _baseStream.Length - _offset;
 
-        public override long Position
-        {
-            get
-            {
+        public override long Position {
+            get {
                 return _baseStream.Position - _offset;
             }
-            set
-            {
+            set {
                 ValidateSizeMultiple(value);
                 _baseStream.Position = value + _offset;
                 _currentSector = (ulong)(value / SectorSize);
@@ -42,54 +34,43 @@ namespace XCI_Organizer.XTSSharp
         protected ulong CurrentSector => _currentSector;
 
         public SectorStream(Stream baseStream, int sectorSize)
-            : this(baseStream, sectorSize, 0L)
-        {
+            : this(baseStream, sectorSize, 0L) {
         }
 
-        public SectorStream(Stream baseStream, int sectorSize, long offset)
-        {
+        public SectorStream(Stream baseStream, int sectorSize, long offset) {
             SectorSize = sectorSize;
             _baseStream = baseStream;
             _offset = offset;
         }
 
-        private void ValidateSizeMultiple(long value)
-        {
-            if (value % SectorSize == 0L)
-            {
+        private void ValidateSizeMultiple(long value) {
+            if (value % SectorSize == 0L) {
                 return;
             }
             throw new ArgumentException($"Value needs to be a multiple of {SectorSize}");
         }
 
-        protected void ValidateSize(long value)
-        {
-            if (value == SectorSize)
-            {
+        protected void ValidateSize(long value) {
+            if (value == SectorSize) {
                 return;
             }
             throw new ArgumentException($"Value needs to be {SectorSize}");
         }
 
-        protected void ValidateSize(int value)
-        {
-            if (value == SectorSize)
-            {
+        protected void ValidateSize(int value) {
+            if (value == SectorSize) {
                 return;
             }
             throw new ArgumentException($"Value needs to be {SectorSize}");
         }
 
-        public override void Flush()
-        {
+        public override void Flush() {
             _baseStream.Flush();
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
+        public override long Seek(long offset, SeekOrigin origin) {
             long num;
-            switch (origin)
-            {
+            switch (origin) {
                 case SeekOrigin.Begin:
                     num = offset;
                     break;
@@ -104,22 +85,19 @@ namespace XCI_Organizer.XTSSharp
             return num;
         }
 
-        public override void SetLength(long value)
-        {
+        public override void SetLength(long value) {
             ValidateSizeMultiple(value);
             _baseStream.SetLength(value);
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
-        {
+        public override int Read(byte[] buffer, int offset, int count) {
             ValidateSize(count);
             int result = _baseStream.Read(buffer, offset, count);
             _currentSector++;
             return result;
         }
 
-        public override void Write(byte[] buffer, int offset, int count)
-        {
+        public override void Write(byte[] buffer, int offset, int count) {
             ValidateSize(count);
             _baseStream.Write(buffer, offset, count);
             _currentSector++;

@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace XCI_Organizer.HexBox
-{
-    static class Util
-    {
+namespace XCI_Organizer.HexBox {
+    static class Util {
         /// <summary>
         /// Contains true, if we are in design mode of Visual Studio
         /// </summary>
@@ -14,12 +12,10 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// Initializes an instance of Util class
         /// </summary>
-        static Util()
-        {
+        static Util() {
             // design mode is true if host process is: Visual Studio, Visual Studio Express Versions (C#, VB, C++) or SharpDevelop
             var designerHosts = new List<string>() { "devenv", "vcsexpress", "vbexpress", "vcexpress", "sharpdevelop" };
-            using (var process = System.Diagnostics.Process.GetCurrentProcess())
-            {
+            using (var process = System.Diagnostics.Process.GetCurrentProcess()) {
                 var processName = process.ProcessName.ToLower();
                 _designMode = designerHosts.Contains(processName);
             }
@@ -32,10 +28,8 @@ namespace XCI_Organizer.HexBox
         /// In Visual Studio 2008 SP1 the designer is crashing sometimes on windows forms. 
         /// The DesignMode property of Control class is buggy and cannot be used, so use our own implementation instead.
         /// </remarks>
-        public static bool DesignMode
-        {
-            get
-            {
+        public static bool DesignMode {
+            get {
                 return _designMode;
             }
         }

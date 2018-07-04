@@ -1,61 +1,41 @@
 ﻿using System;
 using System.IO;
 
-namespace XCI_Organizer.XTSSharp
-{
-    public class RandomAccessSectorStream : Stream
-    {
+namespace XCI_Organizer.XTSSharp {
+    public class RandomAccessSectorStream : Stream {
         private readonly byte[] _buffer;
-
         private readonly int _bufferSize;
-
         private readonly SectorStream _s;
-
         private readonly bool _isStreamOwned;
-
         private bool _bufferDirty;
-
         private bool _bufferLoaded;
-
         private int _bufferPos;
-
         public override bool CanRead => _s.CanRead;
-
         public override bool CanSeek => _s.CanSeek;
-
         public override bool CanWrite => _s.CanWrite;
-
         public override long Length => _s.Length + _bufferPos;
 
-        public override long Position
-        {
-            get
-            {
-                if (!_bufferLoaded)
-                {
+        public override long Position {
+            get {
+                if (!_bufferLoaded) {
                     return _s.Position + _bufferPos;
                 }
                 return _s.Position - _bufferSize + _bufferPos;
             }
-            set
-            {
-                if (value < 0)
-                {
+            set {
+                if (value < 0) {
                     throw new ArgumentOutOfRangeException("value");
                 }
                 long num = value % _bufferSize;
                 long position = value - num;
-                if (_bufferLoaded)
-                {
+                if (_bufferLoaded) {
                     long num2 = _s.Position - _bufferSize;
-                    if (value > num2 && value < num2 + _bufferSize)
-                    {
+                    if (value > num2 && value < num2 + _bufferSize) {
                         _bufferPos = (int)num;
                         return;
                     }
                 }
-                if (_bufferDirty)
-                {
+                if (_bufferDirty) {
                     WriteSector();
                 }
                 _s.Position = position;
@@ -65,41 +45,33 @@ namespace XCI_Organizer.XTSSharp
         }
 
         public RandomAccessSectorStream(SectorStream s)
-            : this(s, false)
-        {
+            : this(s, false) {
         }
 
-        public RandomAccessSectorStream(SectorStream s, bool isStreamOwned)
-        {
+        public RandomAccessSectorStream(SectorStream s, bool isStreamOwned) {
             _s = s;
             _isStreamOwned = isStreamOwned;
             _buffer = new byte[s.SectorSize];
             _bufferSize = s.SectorSize;
         }
 
-        protected override void Dispose(bool disposing)
-        {
+        protected override void Dispose(bool disposing) {
             Flush();
             base.Dispose(disposing);
-            if (_isStreamOwned)
-            {
+            if (_isStreamOwned) {
                 _s.Dispose();
             }
         }
 
-        public override void Flush()
-        {
-            if (_bufferDirty)
-            {
+        public override void Flush() {
+            if (_bufferDirty) {
                 WriteSector();
             }
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
+        public override long Seek(long offset, SeekOrigin origin) {
             long num;
-            switch (origin)
-            {
+            switch (origin) {
                 case SeekOrigin.Begin:
                     num = offset;
                     break;
@@ -114,50 +86,40 @@ namespace XCI_Organizer.XTSSharp
             return num;
         }
 
-        public override void SetLength(long value)
-        {
+        public override void SetLength(long value) {
             long num = value % _s.SectorSize;
-            if (num > 0)
-            {
+            if (num > 0) {
                 value = value - num + _bufferSize;
             }
             _s.SetLength(value);
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
-        {
+        public override int Read(byte[] buffer, int offset, int count) {
             long position = Position;
-            if (position + count > _s.Length)
-            {
+            if (position + count > _s.Length) {
                 count = (int)(_s.Length - position);
             }
-            if (!_bufferLoaded)
-            {
+            if (!_bufferLoaded) {
                 ReadSector();
             }
             int num = 0;
-            while (count > 0)
-            {
+            while (count > 0) {
                 int num2 = Math.Min(count, _bufferSize - _bufferPos);
                 Buffer.BlockCopy(_buffer, _bufferPos, buffer, offset, num2);
                 offset += num2;
                 _bufferPos += num2;
                 count -= num2;
                 num += num2;
-                if (_bufferPos == _bufferSize)
-                {
+                if (_bufferPos == _bufferSize) {
                     ReadSector();
                 }
             }
             return num;
         }
 
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            while (count > 0)
-            {
-                if (!_bufferLoaded)
-                {
+        public override void Write(byte[] buffer, int offset, int count) {
+            while (count > 0) {
+                if (!_bufferLoaded) {
                     ReadSector();
                 }
                 int num = Math.Min(count, _bufferSize - _bufferPos);
@@ -166,24 +128,19 @@ namespace XCI_Organizer.XTSSharp
                 _bufferPos += num;
                 count -= num;
                 _bufferDirty = true;
-                if (_bufferPos == _bufferSize)
-                {
+                if (_bufferPos == _bufferSize) {
                     WriteSector();
                 }
             }
         }
 
-        private void ReadSector()
-        {
-            if (_bufferLoaded && _bufferDirty)
-            {
+        private void ReadSector() {
+            if (_bufferLoaded && _bufferDirty) {
                 WriteSector();
             }
-            if (_s.Position != _s.Length)
-            {
+            if (_s.Position != _s.Length) {
                 int num = _s.Read(_buffer, 0, _buffer.Length);
-                if (num != _bufferSize)
-                {
+                if (num != _bufferSize) {
                     Array.Clear(_buffer, num, _buffer.Length - num);
                 }
                 _bufferLoaded = true;
@@ -192,10 +149,8 @@ namespace XCI_Organizer.XTSSharp
             }
         }
 
-        private void WriteSector()
-        {
-            if (_bufferLoaded)
-            {
+        private void WriteSector() {
+            if (_bufferLoaded) {
                 _s.Seek(-_bufferSize, SeekOrigin.Current);
             }
             _s.Write(_buffer, 0, _bufferSize);

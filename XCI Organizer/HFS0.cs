@@ -2,8 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace XCI_Organizer
-{
+namespace XCI_Organizer {
     internal static class HFS0 {
         public class HFS0_Header {
             public byte[] Data;

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace XCI_Organizer.HexBox
-{
+namespace XCI_Organizer.HexBox {
     /// <summary>
     /// Byte provider for a small amount of data.
     /// </summary>
-    public class DynamicByteProvider : IByteProvider
-    {
+    public class DynamicByteProvider : IByteProvider {
         /// <summary>
         /// Contains information about changes.
         /// </summary>
@@ -21,24 +19,21 @@ namespace XCI_Organizer.HexBox
         /// Initializes a new instance of the DynamicByteProvider class.
         /// </summary>
         /// <param name="data"></param>
-        public DynamicByteProvider(byte[] data) : this(new List<Byte>(data))
-        {
+        public DynamicByteProvider(byte[] data) : this(new List<Byte>(data)) {
         }
 
         /// <summary>
         /// Initializes a new instance of the DynamicByteProvider class.
         /// </summary>
         /// <param name="bytes"></param>
-        public DynamicByteProvider(List<Byte> bytes)
-        {
+        public DynamicByteProvider(List<Byte> bytes) {
             _bytes = bytes;
         }
 
         /// <summary>
         /// Raises the Changed event.
         /// </summary>
-        void OnChanged(EventArgs e)
-        {
+        void OnChanged(EventArgs e) {
             _hasChanges = true;
 
             if (Changed != null)
@@ -48,8 +43,7 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// Raises the LengthChanged event.
         /// </summary>
-        void OnLengthChanged(EventArgs e)
-        {
+        void OnLengthChanged(EventArgs e) {
             if (LengthChanged != null)
                 LengthChanged(this, e);
         }
@@ -57,8 +51,7 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// Gets the byte collection.
         /// </summary>
-        public List<Byte> Bytes
-        {
+        public List<Byte> Bytes {
             get { return _bytes; }
         }
 
@@ -66,16 +59,14 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// True, when changes are done.
         /// </summary>
-        public bool HasChanges()
-        {
+        public bool HasChanges() {
             return _hasChanges;
         }
 
         /// <summary>
         /// Applies changes.
         /// </summary>
-        public void ApplyChanges()
-        {
+        public void ApplyChanges() {
             _hasChanges = false;
         }
 
@@ -95,16 +86,14 @@ namespace XCI_Organizer.HexBox
         /// </summary>
         /// <param name="index">the index of the byte to read</param>
         /// <returns>the byte</returns>
-        public byte ReadByte(long index)
-        { return _bytes[(int)index]; }
+        public byte ReadByte(long index) { return _bytes[(int)index]; }
 
         /// <summary>
         /// Write a byte into the byte collection.
         /// </summary>
         /// <param name="index">the index of the byte to write.</param>
         /// <param name="value">the byte</param>
-        public void WriteByte(long index, byte value)
-        {
+        public void WriteByte(long index, byte value) {
             _bytes[(int)index] = value;
             OnChanged(EventArgs.Empty);
         }
@@ -114,8 +103,7 @@ namespace XCI_Organizer.HexBox
         /// </summary>
         /// <param name="index">the start index of the bytes to delete.</param>
         /// <param name="length">the length of bytes to delete.</param>
-        public void DeleteBytes(long index, long length)
-        {
+        public void DeleteBytes(long index, long length) {
             int internal_index = (int)Math.Max(0, index);
             int internal_length = (int)Math.Min((int)Length, length);
             _bytes.RemoveRange(internal_index, internal_length);
@@ -129,8 +117,7 @@ namespace XCI_Organizer.HexBox
         /// </summary>
         /// <param name="index">the start index of the bytes in the byte collection</param>
         /// <param name="bs">the byte array to insert</param>
-        public void InsertBytes(long index, byte[] bs)
-        {
+        public void InsertBytes(long index, byte[] bs) {
             _bytes.InsertRange((int)index, bs);
 
             OnLengthChanged(EventArgs.Empty);
@@ -140,10 +127,8 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// Gets the length of the bytes in the byte collection.
         /// </summary>
-        public long Length
-        {
-            get
-            {
+        public long Length {
+            get {
                 return _bytes.Count;
             }
         }
@@ -151,24 +136,21 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// Returns true
         /// </summary>
-        public bool SupportsWriteByte()
-        {
+        public bool SupportsWriteByte() {
             return true;
         }
 
         /// <summary>
         /// Returns true
         /// </summary>
-        public bool SupportsInsertBytes()
-        {
+        public bool SupportsInsertBytes() {
             return true;
         }
 
         /// <summary>
         /// Returns true
         /// </summary>
-        public bool SupportsDeleteBytes()
-        {
+        public bool SupportsDeleteBytes() {
             return true;
         }
         #endregion

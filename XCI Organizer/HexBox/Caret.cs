@@ -1,17 +1,12 @@
 ﻿using System;
 
-namespace XCI_Organizer.HexBox
-{
-    internal static class Caret
-    {
-        public static bool Create(IntPtr hWnd, IntPtr hBitmap, int nWidth, int nHeight)
-        {
-            try
-            {
+namespace XCI_Organizer.HexBox {
+    internal static class Caret {
+        public static bool Create(IntPtr hWnd, IntPtr hBitmap, int nWidth, int nHeight) {
+            try {
                 return NativeMethods.CreateCaret(hWnd, hBitmap, nWidth, nHeight);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 // Let's pretend CreateCaret() is available on Linux
                 if ((ex is DllNotFoundException) || (ex is EntryPointNotFoundException))
                     return true;
@@ -20,14 +15,11 @@ namespace XCI_Organizer.HexBox
             }
         }
 
-        public static bool Show(IntPtr hWnd)
-        {
-            try
-            {
+        public static bool Show(IntPtr hWnd) {
+            try {
                 return NativeMethods.ShowCaret(hWnd);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 // Let's pretend ShowCaret() is available on Linux
                 if ((ex is DllNotFoundException) || (ex is EntryPointNotFoundException))
                     return true;
@@ -36,14 +28,11 @@ namespace XCI_Organizer.HexBox
             }
         }
 
-        public static bool Destroy()
-        {
-            try
-            {
+        public static bool Destroy() {
+            try {
                 return NativeMethods.DestroyCaret();
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 // Let's pretend DestroyCaret() is available on Linux
                 if ((ex is DllNotFoundException) || (ex is EntryPointNotFoundException))
                     return true;
@@ -52,14 +41,11 @@ namespace XCI_Organizer.HexBox
             }
         }
 
-        public static bool SetPos(int X, int Y)
-        {
-            try
-            {
+        public static bool SetPos(int X, int Y) {
+            try {
                 return NativeMethods.SetCaretPos(X, Y);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 // Let's pretend SetCaretPos() is available on Linux
                 if ((ex is DllNotFoundException) || (ex is EntryPointNotFoundException))
                     return true;

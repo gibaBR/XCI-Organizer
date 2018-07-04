@@ -1,24 +1,19 @@
-﻿namespace XCI_Organizer.HexBox
-{
+﻿namespace XCI_Organizer.HexBox {
     /// <summary>
     /// Represents a position in the HexBox control
     /// </summary>
-    struct BytePositionInfo
-    {
-        public BytePositionInfo(long index, int characterPosition)
-        {
+    struct BytePositionInfo {
+        public BytePositionInfo(long index, int characterPosition) {
             _index = index;
             _characterPosition = characterPosition;
         }
 
-        public int CharacterPosition
-        {
+        public int CharacterPosition {
             get { return _characterPosition; }
         }
         int _characterPosition;
 
-        public long Index
-        {
+        public long Index {
             get { return _index; }
         }
         long _index;
