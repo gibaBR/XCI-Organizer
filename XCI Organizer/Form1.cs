@@ -39,8 +39,8 @@ namespace XCI_Organizer {
             "???"
         };
 
-        public byte[] NcaHeaderEncryptionKey1_Prod;
-        public byte[] NcaHeaderEncryptionKey2_Prod;
+        public static byte[] NcaHeaderEncryptionKey1_Prod;
+        public static byte[] NcaHeaderEncryptionKey2_Prod;
         public string Mkey;
         public string selectedFile;
         public double UsedSize;
@@ -66,12 +66,19 @@ namespace XCI_Organizer {
         public class FileData {
             public string FilePath { get; set; }
             public string FileName { get; set; }
+            public string FileNameWithExt { get; set; }
+            public string ROMSize { get; set; }
+            public string UsedSpace { get; set; }
+            public string TitleID { get; set; }
+            public string GameName { get; set; }
         }
 
         public Form1() {
             InitializeComponent();
             // Set number of numbers in version number
             const int NUMBERSINVERSION = 3;
+
+            LV_Files.Columns[4].Width = 0;
 
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
@@ -151,6 +158,103 @@ namespace XCI_Organizer {
             }
         }
 
+        private void UpdateFileList(ref List<string> files)
+        {
+            string selectedPath = ini.IniReadValue("Config", "BaseFolder");
+            contextMenuStrip1.Enabled = false;
+
+            if (Directory.Exists(selectedPath) && selectedPath.Trim() != "")
+            {
+                txbBaseFolder.Text = selectedPath;
+                LV_Files.Items.Clear(); //New
+                //ClearFields();
+                string[] directories = Directory.GetDirectories(selectedPath);
+
+                files = Util.GetXCIsInFolder(selectedPath);
+
+                // Not sure about the performance on large lists
+                foreach (string file in files)
+                {
+                    files = files.OrderBy(a => Path.GetFileNameWithoutExtension(a)).ToList();
+                }
+
+                XmlDocument doc = new XmlDocument();
+                doc.Load("db.xml");
+
+                foreach (string file in files)
+                {
+                    FileData data = Util.GetFileData(file);
+
+                    var nodePath = "releases/release[titleid = '" +"0"+ data.TitleID + "']";
+                    var node = doc.SelectSingleNode(nodePath);
+                    var region = "";
+                    var languages = "";
+                    var gamename = "";
+
+                    if (node != null)
+                    {
+                        region = node["region"].InnerText;
+                        languages = node["languages"].InnerText;
+                        gamename = node["name"].InnerText;
+
+                        //var releaseName = node["releasename"].InnerText;
+                        //string nameScheme;
+
+                        // Change region to something more human
+                        if (region == "WLD")
+                        {
+                            region = "World";
+                        }
+                        else if (region == "EUR")
+                        {
+                            region = "Europe";
+                        }
+                        else if (region == "JPN")
+                        {
+                            region = "Japan";
+                        }
+                        else if (region == "KOR")
+                        {
+                            region = "Korea";
+                        }
+                        else if (region == "SPA")
+                        {
+                            region = "Spain";
+                        }
+                    }
+
+                    if (gamename.Trim() == "") //If cant find on db.xml
+                    {
+                        gamename = Path.GetFileNameWithoutExtension(file);
+                        data.GameName = gamename;
+                    } else
+                    {
+                        data.GameName = gamename + " (" + region + ")" + " [" + languages + "]";
+                    }                    
+
+                    ListViewItem item = new ListViewItem(data.TitleID);
+                    item.SubItems.Add(data.GameName);
+                    item.SubItems.Add(data.ROMSize);
+                    item.SubItems.Add(data.UsedSpace);
+                    item.SubItems.Add(data.FilePath); //Invisible!
+
+                    if (data.ROMSize != data.UsedSpace)
+                    {
+                        item.BackColor =  System.Drawing.Color.IndianRed; 
+                    }
+                    LV_Files.Items.Add(item);
+                }
+
+                //doc.close??
+
+                if (LV_Files.Items.Count > 0)
+                {
+                    LV_Files.Items[0].Selected = true;
+                    contextMenuStrip1.Enabled = true;
+                }
+            }
+        }
+/*
         private void _UpdateFileList(ref List<string> files) {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
             contextMenuStrip1.Enabled = false;
@@ -172,6 +276,7 @@ namespace XCI_Organizer {
                     FileData data = new FileData();
                     data.FilePath = file;
                     data.FileName = Path.GetFileNameWithoutExtension(file);
+                    data.FileNameWithExt = Path.GetFileName(file);
                     lboxFiles.ValueMember = "FilePath";
                     lboxFiles.DisplayMember = "FileName";
                     lboxFiles.Items.Add(data);
@@ -183,22 +288,10 @@ namespace XCI_Organizer {
                 }
             }
         }
-
-        private void UpdateFileList(ref List<string> files) {
-            _UpdateFileList(ref files);
-        }
-
+*/
         private void UpdateFileList() {
             List<string> files = new List<string>();
-            _UpdateFileList(ref files);
-        }
-
-        private void lboxFiles_SelectedIndexChanged(object sender, EventArgs e) {
-            ClearFields();
-            selectedFile = (lboxFiles.SelectedItem as FileData).FilePath.ToString();
-            if (selectedFile.Trim() != "") {
-                ProcessFile();
-            }
+            UpdateFileList(ref files);
         }
 
         private void ProcessFile() {
@@ -415,29 +508,10 @@ namespace XCI_Organizer {
         }
 
         private void LoadNCAData() {
-            NCA.NCA_Headers[0] = new NCA.NCA_Header(DecryptNCAHeader(gameNcaOffset));
+            NCA.NCA_Headers[0] = new NCA.NCA_Header(Util.DecryptNCAHeader(selectedFile, gameNcaOffset));
             TB_TID.Text = "0" + NCA.NCA_Headers[0].TitleID.ToString("X");
             TB_SDKVer.Text = $"{NCA.NCA_Headers[0].SDKVersion4}.{NCA.NCA_Headers[0].SDKVersion3}.{NCA.NCA_Headers[0].SDKVersion2}.{NCA.NCA_Headers[0].SDKVersion1}";
             TB_MKeyRev.Text = Util.GetMkey(NCA.NCA_Headers[0].MasterKeyRev);
-        }
-
-        public byte[] DecryptNCAHeader(long offset) {
-            byte[] array = new byte[3072];
-            if (File.Exists(selectedFile)) {
-                FileStream fileStream = new FileStream(selectedFile, FileMode.Open, FileAccess.Read);
-                fileStream.Position = offset;
-                fileStream.Read(array, 0, 3072);
-                File.WriteAllBytes(selectedFile + ".tmp", array);
-                Xts xts = XtsAes128.Create(NcaHeaderEncryptionKey1_Prod, NcaHeaderEncryptionKey2_Prod);
-                using (BinaryReader binaryReader = new BinaryReader(File.OpenRead(selectedFile + ".tmp"))) {
-                    using (XtsStream xtsStream = new XtsStream(binaryReader.BaseStream, xts, 512)) {
-                        xtsStream.Read(array, 0, 3072);
-                    }
-                }
-                File.Delete(selectedFile + ".tmp");
-                fileStream.Close();
-            }
-            return array;
         }
 
         public static string ByteArrayToString(byte[] ba) {
@@ -586,8 +660,7 @@ namespace XCI_Organizer {
 
         private void showInExplorerToolStripMenuItem_Click(object sender, EventArgs e) {
             // opens the folder in explorer
-
-            if ((lboxFiles.Items.Count > 0) && (lboxFiles.SelectedIndex >= 0)) {
+            if ((LV_Files.Items.Count > 0) && (LV_Files.SelectedItems.Count >= 0)) {
                 System.Diagnostics.Process.Start("explorer.exe", Path.GetDirectoryName(selectedFile));
             }
         }
@@ -834,7 +907,8 @@ namespace XCI_Organizer {
 
                 // Uses the same exact files list from UpdateFileList function
                 UpdateFileList(ref files);
-                lboxFiles.SelectedIndex = counter;
+                LV_Files.Items[counter].Selected = true;
+                //lboxFiles.SelectedIndex = counter;
 
                 // Add characters to remove from filename here
                 invalidChars.AddRange(Path.GetInvalidFileNameChars());
@@ -921,7 +995,7 @@ namespace XCI_Organizer {
                     }
 
                     if (++counter < files.Count) {
-                        lboxFiles.SelectedIndex = counter;
+                        LV_Files.Items[counter].Selected = true;
                     }
                 }
                 UpdateFileList();
@@ -942,7 +1016,8 @@ namespace XCI_Organizer {
                 int counter = 0;
 
                 UpdateFileList(ref files);
-                lboxFiles.SelectedIndex = counter;
+                //lboxFiles.SelectedIndex = counter;
+                LV_Files.Items[counter].Selected = true;
 
                 foreach (string file in files) {
                     if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file)) {
@@ -950,7 +1025,8 @@ namespace XCI_Organizer {
                     }
 
                     if (++counter < files.Count) {
-                        lboxFiles.SelectedIndex = counter;
+                        LV_Files.Items[counter].Selected = true;
+                        //lboxFiles.SelectedIndex = counter;
                     }
                 }
                 UpdateFileList();
@@ -987,6 +1063,22 @@ namespace XCI_Organizer {
             updateNSWDB();
             MessageBox.Show("Updated NSWDB!");
             B_UpdateNSWDB.Enabled = true;
+        }
+
+        private void LV_Files_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ListView.SelectedListViewItemCollection selection = LV_Files.SelectedItems;            
+            foreach (ListViewItem item in selection)
+            {
+                ClearFields();
+                selectedFile = item.SubItems[4].Text;
+                if (selectedFile.Trim() != "")
+                {
+                    ProcessFile();
+                }
+
+                break; //Only First Item!
+            }
         }
     }
 }
