@@ -6,11 +6,13 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using XCI_Explorer;
 using XCI_Organizer.Helpers;
 using XCI_Organizer.XTSSharp;
@@ -68,7 +70,7 @@ namespace XCI_Organizer {
 
         public Form1() {
             InitializeComponent();
-
+            // Set number of numbers in version number
             const int NUMBERSINVERSION = 3;
 
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -77,14 +79,10 @@ namespace XCI_Organizer {
             this.Text = "XCI Organizer v" + assemblyVersion;
 
             if (!File.Exists("keys.txt")) {
-                if (File.Exists("Get-keys.txt.bat") && MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
-                    Process process = new Process();
-                    process.StartInfo = new ProcessStartInfo {
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        FileName = "Get-keys.txt.bat"
-                    };
-                    process.Start();
-                    process.WaitForExit();
+                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                    using (var client = new WebClient()) {
+                        client.DownloadFile("https://pastebin.com/raw/ekSH9R8t", "keys.txt");
+                    }
                 }
 
                 if (!File.Exists("keys.txt")) {
@@ -92,10 +90,19 @@ namespace XCI_Organizer {
                     Environment.Exit(0);
                 }
             }
+
             if (!File.Exists("hactool.exe")) {
                 MessageBox.Show("hactool.exe is missing.");
                 Environment.Exit(0);
             }
+
+            if (!File.Exists("db.xml")) {
+                MessageBox.Show("NSWDB is missing.\nDownloading database...");
+                using (var client = new WebClient()) {
+                    client.DownloadFile("http://nswdb.com/xml.php", "db.xml");
+                }
+            }
+
             getKey();
             LoadSettings();
         }
@@ -810,7 +817,7 @@ namespace XCI_Organizer {
         private void BT_BatchRename_Click(object sender, EventArgs e) {
             // Added back into main function because I was trying to debug it. Needs to be added into Util again
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-            
+
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?\n\nNote: This is not perfect and doesn't include any extra information except the game title", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                 BT_BatchRename.Enabled = false;
                 BT_BatchTrim.Enabled = false;
@@ -838,10 +845,27 @@ namespace XCI_Organizer {
 
                 foreach (string file in files) {
                     string uncheckedName = TB_Name.Text.ToString();
+                    string exactSize = new String(TB_ExactUsedSpace.Text.Where(Char.IsDigit).ToArray());
                     string checkedName;
                     string newPath;
 
-                    checkedName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
+                    Debug.WriteLine(exactSize);
+
+                    /* Check NSWDB for filenames first
+                     * If no entry, use custom naming scheme
+                     */
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "db.xml"));
+                    var path = "releases/release[trimmedsize = '" + exactSize + "']";
+                    var node = doc.SelectSingleNode(path);
+                    if (node != null) {
+                        var releaseName = node["releasename"].InnerText;
+                        checkedName = releaseName;
+                    }
+                    else {
+                        checkedName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
+                    }
+
                     newPath = Path.GetDirectoryName(file) + "\\" + checkedName;
 
                     if (!renamedFiles.Contains(checkedName) && File.Exists(file) && !File.Exists(newPath)) {
@@ -851,6 +875,7 @@ namespace XCI_Organizer {
                     else {
                         /* This is a temporary renaming scheme until we can include region and other unique information
                          * This will rename duplicate XCI (doesn't matter if they're different regions) and append "_DATESCHEME"
+                         * This is also used to handle duplicates
                          */
                         // Check if the file has already been renamed according to date naming scheme
                         bool alreadyRenamed = file.Contains(newPath + "_" + DateTime.Now.ToString("yy"));
@@ -908,7 +933,7 @@ namespace XCI_Organizer {
         }
 
         private void autoRenameFileToolStripMenuItem_Click(object sender, EventArgs e) {
-            // The util function needs to be refactored
+            // Util function needs to be refactored
             MessageBox.Show("Soon®");
         }
 
