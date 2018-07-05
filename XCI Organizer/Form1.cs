@@ -416,7 +416,7 @@ namespace XCI_Organizer {
 
         private void LoadNCAData() {
             NCA.NCA_Headers[0] = new NCA.NCA_Header(DecryptNCAHeader(gameNcaOffset));
-            TB_TID.Text = NCA.NCA_Headers[0].TitleID.ToString("X");
+            TB_TID.Text = "0" + NCA.NCA_Headers[0].TitleID.ToString("X");
             TB_SDKVer.Text = $"{NCA.NCA_Headers[0].SDKVersion4}.{NCA.NCA_Headers[0].SDKVersion3}.{NCA.NCA_Headers[0].SDKVersion2}.{NCA.NCA_Headers[0].SDKVersion1}";
             TB_MKeyRev.Text = Util.GetMkey(NCA.NCA_Headers[0].MasterKeyRev);
         }
@@ -843,18 +843,15 @@ namespace XCI_Organizer {
 
                 foreach (string file in files) {
                     string uncheckedName = TB_Name.Text.ToString();
-                    string exactSize = new String(TB_ExactUsedSpace.Text.Where(Char.IsDigit).ToArray());
                     string checkedName;
                     string newPath;
-
-                    Debug.WriteLine(exactSize);
 
                     /* Check NSWDB for filenames first
                      * If no entry, use custom naming scheme
                      */
                     XmlDocument doc = new XmlDocument();
                     doc.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "db.xml"));
-                    var path = "releases/release[trimmedsize = '" + exactSize + "']";
+                    var path = "releases/release[titleid = '" + TB_TID.Text.ToString() + "']";
                     var node = doc.SelectSingleNode(path);
                     if (node != null) {
                         var releaseName = node["releasename"].InnerText;
