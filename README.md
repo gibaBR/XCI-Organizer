@@ -14,7 +14,15 @@ Manage your XCI library easily
 * [Hactool](https://github.com/SciresM/hactool/releases)
 * [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/Get-keys.txt.bat))
 
-![main](https://imgur.com/iBaOpcv.jpg)
+![main](https://i.imgur.com/0CVwnJZ.png)
+
+## Changelog
+v 0.0.7
+
+* New user interface for listing games!
+* Highlights when files are not trimmed
+* Some code refactoring
+* Conext menu for selected items
 
 ## Build Instructions
 * Open `XCI Organizer.sln`
@@ -25,6 +33,7 @@ Manage your XCI library easily
 ## Special Thanks
 * klks - CARD2, Hash Validation, bug fixes
 * gibaBR - XCI Organizer creator
+* StudentBlake - Special contributor to the project
 
 ## Disclaimer
 This is not my original work. I just made minor changes.
