@@ -98,9 +98,7 @@ namespace XCI_Organizer {
 
             if (!File.Exists("db.xml")) {
                 MessageBox.Show("NSWDB is missing.\nDownloading database...");
-                using (var client = new WebClient()) {
-                    client.DownloadFile("http://nswdb.com/xml.php", "db.xml");
-                }
+                updateNSWDB();
             }
 
             getKey();
@@ -946,6 +944,19 @@ namespace XCI_Organizer {
                 Bitmap copy = new Bitmap(Icons[num]);
                 copy.Save(iconFile, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
+        }
+
+        private void updateNSWDB() {
+            using (var client = new WebClient()) {
+                client.DownloadFile("http://nswdb.com/xml.php", "db.xml");
+            }
+        }
+
+        private void B_UpdateNSWDB_Click(object sender, EventArgs e) {
+            B_UpdateNSWDB.Enabled = false;
+            updateNSWDB();
+            MessageBox.Show("Updated NSWDB!");
+            B_UpdateNSWDB.Enabled = true;
         }
     }
 }

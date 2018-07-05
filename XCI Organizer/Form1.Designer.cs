@@ -86,6 +86,7 @@
             this.BT_BatchRename = new System.Windows.Forms.Button();
             this.BT_Refresh = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.B_UpdateNSWDB = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -595,6 +596,7 @@
             // 
             // TABP_TOOLS
             // 
+            this.TABP_TOOLS.Controls.Add(this.B_UpdateNSWDB);
             this.TABP_TOOLS.Controls.Add(this.BT_BatchTrim);
             this.TABP_TOOLS.Controls.Add(this.BT_BatchRename);
             this.TABP_TOOLS.Location = new System.Drawing.Point(4, 22);
@@ -639,6 +641,16 @@
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            // 
+            // B_UpdateNSWDB
+            // 
+            this.B_UpdateNSWDB.Location = new System.Drawing.Point(216, 115);
+            this.B_UpdateNSWDB.Name = "B_UpdateNSWDB";
+            this.B_UpdateNSWDB.Size = new System.Drawing.Size(153, 23);
+            this.B_UpdateNSWDB.TabIndex = 2;
+            this.B_UpdateNSWDB.Text = "Update NSWDB";
+            this.B_UpdateNSWDB.UseVisualStyleBackColor = true;
+            this.B_UpdateNSWDB.Click += new System.EventHandler(this.B_UpdateNSWDB_Click);
             // 
             // Form1
             // 
@@ -728,6 +740,7 @@
         private System.Windows.Forms.Button BT_BatchRename;
         private System.Windows.Forms.Button BT_BatchTrim;
         private System.Windows.Forms.ToolStripMenuItem autoRenameFileToolStripMenuItem;
+        private System.Windows.Forms.Button B_UpdateNSWDB;
     }
 }
 
