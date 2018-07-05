@@ -2,10 +2,8 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace XCI_Organizer.HexBox
-{
-    internal static class NativeMethods
-    {
+namespace XCI_Organizer.HexBox {
+    internal static class NativeMethods {
         // Caret definitions
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool CreateCaret(IntPtr hWnd, IntPtr hBitmap, int nWidth, int nHeight);

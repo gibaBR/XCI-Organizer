@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace XCI_Organizer.HexBox
-{
+namespace XCI_Organizer.HexBox {
     /// <summary>
     /// Defines the type of the Find operation.
     /// </summary>
-    public enum FindType
-    {
+    public enum FindType {
         /// <summary>
         /// Used for Text Find operations
         /// </summary>
@@ -22,8 +20,7 @@ namespace XCI_Organizer.HexBox
     /// <summary>
     /// Defines all state information nee
     /// </summary>
-    public class FindOptions
-    {
+    public class FindOptions {
         /// <summary>
         /// Gets or sets whether the Find options are valid
         /// </summary>
@@ -47,11 +44,9 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// Gets or sets the value, whether the Find operation is case sensitive or not.
         /// </summary>
-        public bool MatchCase
-        {
+        public bool MatchCase {
             get { return _matchCase; }
-            set
-            {
+            set {
                 _matchCase = value;
                 UpdateFindBuffer();
             }
@@ -63,11 +58,9 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// Gets or sets the text that should be found. Only used, when Type is FindType.Hex.
         /// </summary>
-        public string Text
-        {
+        public string Text {
             get { return _text; }
-            set
-            {
+            set {
                 _text = value;
                 UpdateFindBuffer();
             }
@@ -83,8 +76,7 @@ namespace XCI_Organizer.HexBox
         /// <summary>
         /// Updates the find buffer.
         /// </summary>
-        void UpdateFindBuffer()
-        {
+        void UpdateFindBuffer() {
             string text = this.Text != null ? this.Text : string.Empty;
             FindBuffer = ASCIIEncoding.ASCII.GetBytes(text);
             FindBufferLowerCase = ASCIIEncoding.ASCII.GetBytes(text.ToLower());

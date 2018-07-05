@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace XCI_Organizer {
     internal static class Util {
-
-        public static string GetMkey(byte id)
-        {
-            switch (id)
-            {
+        public static string GetMkey(byte id) {
+            switch (id) {
                 case 0:
                 case 1:
                     return "MasterKey0 (1.0.0-2.3.0)";
@@ -91,7 +88,8 @@ namespace XCI_Organizer {
                 foreach (string f in Directory.GetFiles(folder, "*.xci", SearchOption.AllDirectories)) {
                     list.Add(f);
                 }
-            } catch (System.Exception execpt) {
+            }
+            catch (System.Exception execpt) {
                 Console.WriteLine(execpt.Message);
             }
 
@@ -121,8 +119,7 @@ namespace XCI_Organizer {
         }
 
         public static string GetCapacity(int id) {
-            switch (id)
-            {
+            switch (id) {
                 case 248:
                     return "2GB";
                 case 240:
@@ -145,10 +142,9 @@ namespace XCI_Organizer {
             return false;
         }
 
-        public static bool RenameFile(string filepath, string newName)
-        {
-            if (checkFile(filepath))
-            {
+        public static bool RenameFile(string filepath, string newName) {
+            // Needs to be updated
+            if (checkFile(filepath)) {
                 string uncheckedName = newName;
                 List<char> invalidChars = new List<char>();
                 string _newName;
@@ -162,16 +158,14 @@ namespace XCI_Organizer {
                 _newName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
                 newPath = Path.GetDirectoryName(filepath) + "\\" + _newName;
 
-                if (!File.Exists(newPath))
-                {
+                if (!File.Exists(newPath)) {
                     System.IO.File.Move(filepath, (newPath + ".xci"));
+
                 }
-                else
-                {
+                else {
                     int append = 1;
 
-                    while (File.Exists(newPath + "_" + append.ToString()))
-                    {
+                    while (append < 5 && File.Exists(newPath + "_" + append.ToString())) {
                         append++;
                     }
 

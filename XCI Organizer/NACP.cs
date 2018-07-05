@@ -1,8 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace XCI_Organizer
-{
+namespace XCI_Organizer {
     public static class NACP {
         public class NACP_String {
             public byte[] Data;

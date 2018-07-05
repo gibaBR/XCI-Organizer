@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace XCI_Organizer.HexBox
-{
+namespace XCI_Organizer.HexBox {
     /// <summary>
     /// Specifies the case of hex characters in the HexBox control
     /// </summary>
-    public enum HexCasing
-    {
+    public enum HexCasing {
         /// <summary>
         /// Converts all characters to uppercase.
         /// </summary>

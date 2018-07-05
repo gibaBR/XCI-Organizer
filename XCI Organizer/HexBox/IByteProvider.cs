@@ -1,12 +1,10 @@
 ﻿using System;
 
-namespace XCI_Organizer.HexBox
-{
+namespace XCI_Organizer.HexBox {
     /// <summary>
     /// Defines a byte provider for HexBox control
     /// </summary>
-    public interface IByteProvider
-    {
+    public interface IByteProvider {
         /// <summary>
         /// Reads a byte from the provider
         /// </summary>
