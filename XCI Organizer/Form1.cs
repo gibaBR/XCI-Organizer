@@ -816,7 +816,7 @@ namespace XCI_Organizer {
             // Added back into main function because I was trying to debug it. Needs to be added into Util again
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
 
-            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?\n\nNote: This is not perfect and doesn't include any extra information except the game title", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+            if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                 BT_BatchRename.Enabled = false;
                 BT_BatchTrim.Enabled = false;
                 /* Blake's version of trying not to get confused (tm)
@@ -850,12 +850,45 @@ namespace XCI_Organizer {
                      * If no entry, use custom naming scheme
                      */
                     XmlDocument doc = new XmlDocument();
-                    doc.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "db.xml"));
-                    var path = "releases/release[titleid = '" + TB_TID.Text.ToString() + "']";
-                    var node = doc.SelectSingleNode(path);
+                    doc.Load("db.xml");
+                    var nodePath = "releases/release[titleid = '" + TB_TID.Text + "']";
+                    var node = doc.SelectSingleNode(nodePath);
                     if (node != null) {
+                        var id = node["id"].InnerText;
+                        var name = node["name"].InnerText;
+                        var region = node["region"].InnerText;
+                        var languages = node["languages"].InnerText;
                         var releaseName = node["releasename"].InnerText;
-                        checkedName = releaseName;
+                        string nameScheme;
+
+                        // Change region to something more human
+                        if (region == "WLD") {
+                            region = "World";
+                        }
+                        else if (region == "EUR") {
+                            region = "Europe";
+                        }
+                        else if (region == "JPN") {
+                            region = "Japan";
+                        }
+                        else if (region == "KOR") {
+                            region = "Korea";
+                        }
+                        else if (region == "SPA") {
+                            region = "Spain";
+                        }
+
+                        if (R_BatchRenameSimple.Checked) {
+                            nameScheme = name + " (" + region + ")";
+                        }
+                        else if (R_BatchRenameDetailed.Checked) {
+                            nameScheme = id.ToString().PadLeft(4, '0') + " - " + name + " (" + region + ") (" + languages + ")";
+                        }
+                        else {
+                            nameScheme = releaseName;
+                        }
+                        
+                        checkedName = string.Join("", nameScheme.Split(invalidChars.ToArray())); ;
                     }
                     else {
                         checkedName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
@@ -945,7 +978,7 @@ namespace XCI_Organizer {
 
         private void updateNSWDB() {
             using (var client = new WebClient()) {
-                client.DownloadFile("http://nswdb.com/xml.php", "db.xml");
+                client.DownloadFile(@"http://nswdb.com/xml.php", "db.xml");
             }
         }
 

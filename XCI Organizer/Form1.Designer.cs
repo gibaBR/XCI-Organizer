@@ -82,11 +82,16 @@
             this.LB_SelectedData = new System.Windows.Forms.Label();
             this.TV_Partitions = new System.Windows.Forms.TreeView();
             this.TABP_TOOLS = new System.Windows.Forms.TabPage();
+            this.B_UpdateNSWDB = new System.Windows.Forms.Button();
             this.BT_BatchTrim = new System.Windows.Forms.Button();
             this.BT_BatchRename = new System.Windows.Forms.Button();
             this.BT_Refresh = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.B_UpdateNSWDB = new System.Windows.Forms.Button();
+            this.R_BatchRenameSimple = new System.Windows.Forms.RadioButton();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.R_BatchRenameDetailed = new System.Windows.Forms.RadioButton();
+            this.R_BatchRenameScene = new System.Windows.Forms.RadioButton();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -94,6 +99,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.PB_GameIcon)).BeginInit();
             this.tabPage2.SuspendLayout();
             this.TABP_TOOLS.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnBaseFolder
@@ -596,9 +603,8 @@
             // 
             // TABP_TOOLS
             // 
-            this.TABP_TOOLS.Controls.Add(this.B_UpdateNSWDB);
-            this.TABP_TOOLS.Controls.Add(this.BT_BatchTrim);
-            this.TABP_TOOLS.Controls.Add(this.BT_BatchRename);
+            this.TABP_TOOLS.Controls.Add(this.groupBox3);
+            this.TABP_TOOLS.Controls.Add(this.groupBox2);
             this.TABP_TOOLS.Location = new System.Drawing.Point(4, 22);
             this.TABP_TOOLS.Name = "TABP_TOOLS";
             this.TABP_TOOLS.Padding = new System.Windows.Forms.Padding(3);
@@ -607,9 +613,19 @@
             this.TABP_TOOLS.Text = "Tools";
             this.TABP_TOOLS.UseVisualStyleBackColor = true;
             // 
+            // B_UpdateNSWDB
+            // 
+            this.B_UpdateNSWDB.Location = new System.Drawing.Point(71, 93);
+            this.B_UpdateNSWDB.Name = "B_UpdateNSWDB";
+            this.B_UpdateNSWDB.Size = new System.Drawing.Size(153, 23);
+            this.B_UpdateNSWDB.TabIndex = 2;
+            this.B_UpdateNSWDB.Text = "Update NSWDB";
+            this.B_UpdateNSWDB.UseVisualStyleBackColor = true;
+            this.B_UpdateNSWDB.Click += new System.EventHandler(this.B_UpdateNSWDB_Click);
+            // 
             // BT_BatchTrim
             // 
-            this.BT_BatchTrim.Location = new System.Drawing.Point(216, 68);
+            this.BT_BatchTrim.Location = new System.Drawing.Point(71, 38);
             this.BT_BatchTrim.Name = "BT_BatchTrim";
             this.BT_BatchTrim.Size = new System.Drawing.Size(153, 23);
             this.BT_BatchTrim.TabIndex = 1;
@@ -619,7 +635,7 @@
             // 
             // BT_BatchRename
             // 
-            this.BT_BatchRename.Location = new System.Drawing.Point(216, 22);
+            this.BT_BatchRename.Location = new System.Drawing.Point(71, 34);
             this.BT_BatchRename.Name = "BT_BatchRename";
             this.BT_BatchRename.Size = new System.Drawing.Size(153, 23);
             this.BT_BatchRename.TabIndex = 0;
@@ -642,15 +658,61 @@
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
-            // B_UpdateNSWDB
+            // R_BatchRenameSimple
             // 
-            this.B_UpdateNSWDB.Location = new System.Drawing.Point(216, 115);
-            this.B_UpdateNSWDB.Name = "B_UpdateNSWDB";
-            this.B_UpdateNSWDB.Size = new System.Drawing.Size(153, 23);
-            this.B_UpdateNSWDB.TabIndex = 2;
-            this.B_UpdateNSWDB.Text = "Update NSWDB";
-            this.B_UpdateNSWDB.UseVisualStyleBackColor = true;
-            this.B_UpdateNSWDB.Click += new System.EventHandler(this.B_UpdateNSWDB_Click);
+            this.R_BatchRenameSimple.AutoSize = true;
+            this.R_BatchRenameSimple.Checked = true;
+            this.R_BatchRenameSimple.Location = new System.Drawing.Point(18, 77);
+            this.R_BatchRenameSimple.Name = "R_BatchRenameSimple";
+            this.R_BatchRenameSimple.Size = new System.Drawing.Size(175, 17);
+            this.R_BatchRenameSimple.TabIndex = 3;
+            this.R_BatchRenameSimple.TabStop = true;
+            this.R_BatchRenameSimple.Text = "Simple         \"NAME (REGION)\"";
+            this.R_BatchRenameSimple.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.R_BatchRenameScene);
+            this.groupBox2.Controls.Add(this.R_BatchRenameDetailed);
+            this.groupBox2.Controls.Add(this.BT_BatchRename);
+            this.groupBox2.Controls.Add(this.R_BatchRenameSimple);
+            this.groupBox2.Location = new System.Drawing.Point(141, 17);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(300, 165);
+            this.groupBox2.TabIndex = 4;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Rename Options";
+            // 
+            // R_BatchRenameDetailed
+            // 
+            this.R_BatchRenameDetailed.AutoSize = true;
+            this.R_BatchRenameDetailed.Location = new System.Drawing.Point(18, 100);
+            this.R_BatchRenameDetailed.Name = "R_BatchRenameDetailed";
+            this.R_BatchRenameDetailed.Size = new System.Drawing.Size(272, 17);
+            this.R_BatchRenameDetailed.TabIndex = 4;
+            this.R_BatchRenameDetailed.Text = "Detailed       \"ID - NAME (REGION) (LANGUAGES)\"";
+            this.R_BatchRenameDetailed.UseVisualStyleBackColor = true;
+            // 
+            // R_BatchRenameScene
+            // 
+            this.R_BatchRenameScene.AutoSize = true;
+            this.R_BatchRenameScene.Location = new System.Drawing.Point(18, 123);
+            this.R_BatchRenameScene.Name = "R_BatchRenameScene";
+            this.R_BatchRenameScene.Size = new System.Drawing.Size(163, 17);
+            this.R_BatchRenameScene.TabIndex = 5;
+            this.R_BatchRenameScene.Text = "Scene          \"SCENENAME\"";
+            this.R_BatchRenameScene.UseVisualStyleBackColor = true;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.BT_BatchTrim);
+            this.groupBox3.Controls.Add(this.B_UpdateNSWDB);
+            this.groupBox3.Location = new System.Drawing.Point(141, 202);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(300, 151);
+            this.groupBox3.TabIndex = 5;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Miscellaneous";
             // 
             // Form1
             // 
@@ -677,6 +739,9 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.TABP_TOOLS.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -741,6 +806,11 @@
         private System.Windows.Forms.Button BT_BatchTrim;
         private System.Windows.Forms.ToolStripMenuItem autoRenameFileToolStripMenuItem;
         private System.Windows.Forms.Button B_UpdateNSWDB;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RadioButton R_BatchRenameScene;
+        private System.Windows.Forms.RadioButton R_BatchRenameDetailed;
+        private System.Windows.Forms.RadioButton R_BatchRenameSimple;
+        private System.Windows.Forms.GroupBox groupBox3;
     }
 }
 
