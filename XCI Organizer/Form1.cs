@@ -79,7 +79,7 @@ namespace XCI_Organizer {
         public Form1() {
             InitializeComponent();
             // Set number of numbers in version number
-            const int NUMBERSINVERSION = 3;
+            const int NUMBERSINVERSION = 4;
 
             //LV_Files.Columns[4].Width = 0;
 
