@@ -731,6 +731,7 @@
             // 
             // LV_Files
             // 
+            this.LV_Files.AllowColumnReorder = true;
             this.LV_Files.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.chGameName,
             this.chReleaseID,
