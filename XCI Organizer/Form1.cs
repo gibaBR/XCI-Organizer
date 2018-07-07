@@ -79,14 +79,14 @@ namespace XCI_Organizer {
         public Form1() {
             InitializeComponent();
             // Set number of numbers in version number
-            const int NUMBERSINVERSION = 4;
+            const int NUMBERSINVERSION = 3;
 
             //LV_Files.Columns[4].Width = 0;
 
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion;
+            this.Text = "XCI Organizer v" + assemblyVersion + "rev002";
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
@@ -754,7 +754,7 @@ namespace XCI_Organizer {
                     L_Status.Text = "Status: Extracting NCA...";
 
                     // Start the asynchronous operation.
-                    backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);     
+                    backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);
                 }
             }
         }
@@ -985,7 +985,9 @@ namespace XCI_Organizer {
                 }
             }
             else {
+                // Check if necessary to run every update
                 removeOldCacheEntries();
+
                 cacheDoc.Load("cache.dat");
                 foreach (FileData file in files) {
                     var cacheNodePath = "xciorganizer/pathpair[path = '" + file.FilePath + "']";
@@ -1068,7 +1070,7 @@ namespace XCI_Organizer {
 
                 // If can't find in db.xml
                 if (gamename.Trim() == "") {
-                    data.GameName = data.FileNameWithExt;
+                    data.GameName = Path.GetFileNameWithoutExtension(file.FilePath);
                     data.ReleaseID = "???";
                 }
                 else {
