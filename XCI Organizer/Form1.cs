@@ -86,7 +86,7 @@ namespace XCI_Organizer {
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion + "rev003";
+            this.Text = "XCI Organizer v" + assemblyVersion + "rev004";
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
