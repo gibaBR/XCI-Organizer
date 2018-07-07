@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Xml.Linq;
 using XCI_Explorer;
 using XCI_Organizer.Helpers;
 using XCI_Organizer.XTSSharp;
@@ -51,6 +52,7 @@ namespace XCI_Organizer {
         private TreeViewFileSystem TV_Parti;
         private BetterTreeNode rootNode;
         public List<char> chars = new List<char>();
+        List<FileData> files = new List<FileData>();
 
         private long[] SecureSize;
         private long[] NormalSize;
@@ -64,13 +66,14 @@ namespace XCI_Organizer {
         private long selectedSize;
 
         public class FileData {
-            public string FilePath { get; set; }
-            public string FileName { get; set; }
-            public string FileNameWithExt { get; set; }
-            public string ROMSize { get; set; }
-            public string UsedSpace { get; set; }
-            public string TitleID { get; set; }
-            public string GameName { get; set; }
+            public string FilePath { get; set; } = "";
+            public string FileName { get; set; } = "";
+            public string FileNameWithExt { get; set; } = "";
+            public string ROMSize { get; set; } = "";
+            public string UsedSpace { get; set; } = "";
+            public string TitleID { get; set; } = "";
+            public string GameName { get; set; } = "";
+            public string ReleaseID { get; set; } = "";
         }
 
         public Form1() {
@@ -78,12 +81,13 @@ namespace XCI_Organizer {
             // Set number of numbers in version number
             const int NUMBERSINVERSION = 3;
 
-            LV_Files.Columns[4].Width = 0;
+            //LV_Files.Columns[4].Width = 0;
 
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
             this.Text = "XCI Organizer v" + assemblyVersion;
+            bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
                 if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
@@ -158,140 +162,26 @@ namespace XCI_Organizer {
             }
         }
 
-        private void UpdateFileList(ref List<string> files)
-        {
-            string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-            contextMenuStrip1.Enabled = false;
-
-            if (Directory.Exists(selectedPath) && selectedPath.Trim() != "")
-            {
-                txbBaseFolder.Text = selectedPath;
-                LV_Files.Items.Clear(); //New
-                //ClearFields();
-                string[] directories = Directory.GetDirectories(selectedPath);
-
-                files = Util.GetXCIsInFolder(selectedPath);
-
-                // Not sure about the performance on large lists
-                foreach (string file in files)
-                {
-                    files = files.OrderBy(a => Path.GetFileNameWithoutExtension(a)).ToList();
-                }
-
-                XmlDocument doc = new XmlDocument();
-                doc.Load("db.xml");
-
-                foreach (string file in files)
-                {
-                    FileData data = Util.GetFileData(file);
-
-                    var nodePath = "releases/release[titleid = '" +"0"+ data.TitleID + "']";
-                    var node = doc.SelectSingleNode(nodePath);
-                    var region = "";
-                    var languages = "";
-                    var gamename = "";
-
-                    if (node != null)
-                    {
-                        region = node["region"].InnerText;
-                        languages = node["languages"].InnerText;
-                        gamename = node["name"].InnerText;
-
-                        //var releaseName = node["releasename"].InnerText;
-                        //string nameScheme;
-
-                        // Change region to something more human
-                        if (region == "WLD")
-                        {
-                            region = "World";
-                        }
-                        else if (region == "EUR")
-                        {
-                            region = "Europe";
-                        }
-                        else if (region == "JPN")
-                        {
-                            region = "Japan";
-                        }
-                        else if (region == "KOR")
-                        {
-                            region = "Korea";
-                        }
-                        else if (region == "SPA")
-                        {
-                            region = "Spain";
-                        }
-                    }
-
-                    if (gamename.Trim() == "") //If cant find on db.xml
-                    {
-                        gamename = Path.GetFileNameWithoutExtension(file);
-                        data.GameName = gamename;
-                    } else
-                    {
-                        data.GameName = gamename + " (" + region + ")" + " [" + languages + "]";
-                    }                    
-
-                    ListViewItem item = new ListViewItem(data.TitleID);
-                    item.SubItems.Add(data.GameName);
-                    item.SubItems.Add(data.ROMSize);
-                    item.SubItems.Add(data.UsedSpace);
-                    item.SubItems.Add(data.FilePath); //Invisible!
-
-                    if (data.ROMSize != data.UsedSpace)
-                    {
-                        item.BackColor =  System.Drawing.Color.IndianRed; 
-                    }
-                    LV_Files.Items.Add(item);
-                }
-
-                //doc.close??
-
-                if (LV_Files.Items.Count > 0)
-                {
-                    LV_Files.Items[0].Selected = true;
-                    contextMenuStrip1.Enabled = true;
-                }
-            }
-        }
-/*
-        private void _UpdateFileList(ref List<string> files) {
+        private void UpdateFileList() {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
             contextMenuStrip1.Enabled = false;
 
             if (Directory.Exists(selectedPath) && selectedPath.Trim() != "") {
                 txbBaseFolder.Text = selectedPath;
-                lboxFiles.Items.Clear();
-                ClearFields();
+                LV_Files.Items.Clear();
+
                 string[] directories = Directory.GetDirectories(selectedPath);
 
                 files = Util.GetXCIsInFolder(selectedPath);
 
-                // Not sure about the performance on large lists
-                foreach (string file in files) {
-                    files = files.OrderBy(a => Path.GetFileNameWithoutExtension(a)).ToList();
-                }
+                if (!bwUpdateFileList.IsBusy) {
+                    buttonsEnabled(false);
 
-                foreach (string file in files) {
-                    FileData data = new FileData();
-                    data.FilePath = file;
-                    data.FileName = Path.GetFileNameWithoutExtension(file);
-                    data.FileNameWithExt = Path.GetFileName(file);
-                    lboxFiles.ValueMember = "FilePath";
-                    lboxFiles.DisplayMember = "FileName";
-                    lboxFiles.Items.Add(data);
-                }
-
-                if (lboxFiles.Items.Count > 0) {
-                    lboxFiles.SelectedIndex = 0;
-                    contextMenuStrip1.Enabled = true;
+                    // Start the asynchronous operation.
+                    L_Status.Text = "Status: Refreshing list...";
+                    bwUpdateFileList.RunWorkerAsync();
                 }
             }
-        }
-*/
-        private void UpdateFileList() {
-            List<string> files = new List<string>();
-            UpdateFileList(ref files);
         }
 
         private void ProcessFile() {
@@ -299,7 +189,7 @@ namespace XCI_Organizer {
                 LoadXCI();
             }
             else {
-                //TB_File.Text = null;
+                // TB_File.Text = null;
                 MessageBox.Show("Unsupported file.");
             }
         }
@@ -398,12 +288,7 @@ namespace XCI_Organizer {
                 using (FileStream fileStream = File.OpenRead(selectedFile)) {
                     for (int si = 0; si < SecureSize.Length; si++) {
                         if (SecureSize[si] > 0x4E20000) continue;
-                        /*try {
-                            File.Delete("meta");
-                            Directory.Delete("data", true);
-                        }
-                        catch { }
-                        */
+
                         if (File.Exists("meta")) {
                             File.Delete("meta");
                         }
@@ -766,7 +651,7 @@ namespace XCI_Organizer {
 
                 LB_DataOffset.Text = "Offset: 0x" + selectedOffset.ToString("X");
                 LB_SelectedData.Text = e.Node.Text;
-                if (backgroundWorker1.IsBusy != true) {
+                if (!backgroundWorker1.IsBusy && !bwUpdateFileList.IsBusy) {
                     B_Extract.Enabled = true;
                 }
                 string[] array = new string[5]
@@ -848,19 +733,14 @@ namespace XCI_Organizer {
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            B_Extract.Enabled = true;
-            btnBaseFolder.Enabled = true;
-            B_TrimXCI.Enabled = true;
-            B_ImportCert.Enabled = true;
-            B_ClearCert.Enabled = true;
-            BT_BatchRename.Enabled = true;
-            BT_BatchTrim.Enabled = true;
+            buttonsEnabled(true);
 
             if (e.Error != null) {
+                L_Status.Text = "Status: Error extracting NCA...";
                 MessageBox.Show("Error: " + e.Error.Message);
             }
             else {
-                MessageBox.Show("Done extracting NCA!");
+                L_Status.Text = "Status: Done extracting NCA!";
             }
         }
 
@@ -868,19 +748,13 @@ namespace XCI_Organizer {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.FileName = LB_SelectedData.Text;
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                if (backgroundWorker1.IsBusy != true) {
-                    B_Extract.Enabled = false;
-                    btnBaseFolder.Enabled = false;
-                    B_TrimXCI.Enabled = false;
-                    B_ImportCert.Enabled = false;
-                    B_ClearCert.Enabled = false;
-                    BT_BatchRename.Enabled = false;
-                    BT_BatchTrim.Enabled = false;
+                if (!backgroundWorker1.IsBusy) {
+                    buttonsEnabled(false);
+
+                    L_Status.Text = "Status: Extracting NCA...";
 
                     // Start the asynchronous operation.
-                    backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);
-
-                    MessageBox.Show("Extracting NCA\nPlease wait...");
+                    backgroundWorker1.RunWorkerAsync(saveFileDialog.FileName);     
                 }
             }
         }
@@ -890,8 +764,8 @@ namespace XCI_Organizer {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
 
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
-                BT_BatchRename.Enabled = false;
-                BT_BatchTrim.Enabled = false;
+                L_Status.Text = "Status: Batch renaming files...";
+                buttonsEnabled(false);
                 /* Blake's version of trying not to get confused (tm)
                  * 
                  * "files" looks like "P:/ath/random.xci"
@@ -900,13 +774,12 @@ namespace XCI_Organizer {
                  * 
                  * We need renamedFiles to just be the filename because some files with same name are located in different folders
                 */
-                List<string> files = new List<string>(); // Same file list from UpdateFileList
                 List<string> renamedFiles = new List<string>(); // Add renamed files to new list so duplicates aren't created
                 List<char> invalidChars = new List<char>(); // Custom list of invalid characters
                 int counter = 0;
 
                 // Uses the same exact files list from UpdateFileList function
-                UpdateFileList(ref files);
+                //UpdateFileList();
                 LV_Files.Items[counter].Selected = true;
                 //lboxFiles.SelectedIndex = counter;
 
@@ -915,7 +788,7 @@ namespace XCI_Organizer {
                 invalidChars.Add('™');
                 invalidChars.Add('®');
 
-                foreach (string file in files) {
+                foreach (FileData file in files) {
                     string uncheckedName = TB_Name.Text.ToString();
                     string checkedName;
                     string newPath;
@@ -961,17 +834,17 @@ namespace XCI_Organizer {
                         else {
                             nameScheme = releaseName;
                         }
-                        
+
                         checkedName = string.Join("", nameScheme.Split(invalidChars.ToArray())); ;
                     }
                     else {
                         checkedName = string.Join("", uncheckedName.Split(invalidChars.ToArray()));
                     }
 
-                    newPath = Path.GetDirectoryName(file) + "\\" + checkedName;
+                    newPath = Path.GetDirectoryName(file.FilePath) + "\\" + checkedName;
 
-                    if (!renamedFiles.Contains(checkedName) && File.Exists(file) && !File.Exists(newPath)) {
-                        System.IO.File.Move(file, (newPath + ".xci"));
+                    if (!renamedFiles.Contains(checkedName) && File.Exists(file.FilePath) && !File.Exists(newPath)) {
+                        System.IO.File.Move(file.FilePath, (newPath + ".xci"));
                         renamedFiles.Add(checkedName);
                     }
                     else {
@@ -980,7 +853,7 @@ namespace XCI_Organizer {
                          * This is also used to handle duplicates
                          */
                         // Check if the file has already been renamed according to date naming scheme
-                        bool alreadyRenamed = file.Contains(newPath + "_" + DateTime.Now.ToString("yy"));
+                        bool alreadyRenamed = file.FilePath.Contains(newPath + "_" + DateTime.Now.ToString("yy"));
 
                         // Build new path using the date naming scheme
                         newPath = newPath + "_" + DateTime.Now.ToString("yyMMddHHmmssffffff");
@@ -988,7 +861,7 @@ namespace XCI_Organizer {
                         // Only rename the file if it hasn't been renamed according to date naming scheme
                         if (!File.Exists(newPath) && !alreadyRenamed) {
                             try {
-                                System.IO.File.Move(file, (newPath + ".xci"));
+                                System.IO.File.Move(file.FilePath, (newPath + ".xci"));
                             }
                             catch { }
                         }
@@ -999,9 +872,8 @@ namespace XCI_Organizer {
                     }
                 }
                 UpdateFileList();
-                BT_BatchRename.Enabled = true;
-                BT_BatchTrim.Enabled = true;
-                MessageBox.Show("Batch rename done!");
+                buttonsEnabled(true);
+                L_Status.Text = "Status: Done batch renaming files!";
             }
         }
 
@@ -1010,17 +882,16 @@ namespace XCI_Organizer {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
 
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
-                BT_BatchTrim.Enabled = false;
-                BT_BatchRename.Enabled = false;
-                List<string> files = new List<string>();
+                L_Status.Text = "Status: Batch trimming...";
+                buttonsEnabled(false);
                 int counter = 0;
 
-                UpdateFileList(ref files);
+                //UpdateFileList();
                 //lboxFiles.SelectedIndex = counter;
                 LV_Files.Items[counter].Selected = true;
 
-                foreach (string file in files) {
-                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file)) {
+                foreach (FileData file in files) {
+                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file.FilePath)) {
                         _TrimXCI();
                     }
 
@@ -1030,9 +901,8 @@ namespace XCI_Organizer {
                     }
                 }
                 UpdateFileList();
-                BT_BatchTrim.Enabled = true;
-                BT_BatchRename.Enabled = true;
-                MessageBox.Show("Batch trim done!");
+                buttonsEnabled(true);
+                L_Status.Text = "Status: Batch trimming done!";
             }
         }
 
@@ -1059,25 +929,245 @@ namespace XCI_Organizer {
         }
 
         private void B_UpdateNSWDB_Click(object sender, EventArgs e) {
-            B_UpdateNSWDB.Enabled = false;
+            buttonsEnabled(false);
             updateNSWDB();
             MessageBox.Show("Updated NSWDB!");
-            B_UpdateNSWDB.Enabled = true;
+            buttonsEnabled(true);
         }
 
-        private void LV_Files_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ListView.SelectedListViewItemCollection selection = LV_Files.SelectedItems;            
-            foreach (ListViewItem item in selection)
-            {
+        private void LV_Files_SelectedIndexChanged(object sender, EventArgs e) {
+            ListView.SelectedListViewItemCollection selection = LV_Files.SelectedItems;
+            foreach (ListViewItem item in selection) {
                 ClearFields();
-                selectedFile = item.SubItems[4].Text;
-                if (selectedFile.Trim() != "")
-                {
+                selectedFile = item.SubItems[chFilePath.Index].Text;
+                if (selectedFile.Trim() != "") {
                     ProcessFile();
                 }
 
                 break; //Only First Item!
+            }
+        }
+
+        private void buttonsEnabled(bool status) {
+            btnBaseFolder.Enabled = status;
+            BT_Refresh.Enabled = status;
+            B_TrimXCI.Enabled = status;
+            B_CopyXCI.Enabled = status;
+            B_ExportCert.Enabled = status;
+            B_ImportCert.Enabled = status;
+            B_ViewCert.Enabled = status;
+            B_ClearCert.Enabled = status;
+            B_Extract.Enabled = status;
+            BT_BatchRename.Enabled = status;
+            BT_BatchTrim.Enabled = status;
+            B_UpdateNSWDB.Enabled = status;
+        }
+
+        private void bwUpdateFileList_DoWork(object sender, DoWorkEventArgs e) {
+            int counter = 0, percent;
+            XmlDocument doc = new XmlDocument();
+            XmlDocument cacheDoc = new XmlDocument();
+
+            if (!File.Exists("cache.dat")) {
+                XmlWriterSettings settings = new XmlWriterSettings();
+                settings.Indent = true;
+                settings.IndentChars = ("    ");
+                using (XmlWriter writer = XmlWriter.Create("cache.dat", settings)) {
+                    // Setup file
+                    writer.WriteStartElement("xciorganizer");
+                    writer.WriteStartElement("pathpair");
+                    writer.WriteEndElement();
+                    writer.Flush();
+                }
+            }
+            else {
+                removeOldCacheEntries();
+                cacheDoc.Load("cache.dat");
+                foreach (FileData file in files) {
+                    var cacheNodePath = "xciorganizer/pathpair[path = '" + file.FilePath + "']";
+                    var cacheNode = cacheDoc.SelectSingleNode(cacheNodePath);
+                    var titleid = "";
+                    var romsize = "";
+                    var usedspace = "";
+
+                    if (cacheNode != null) {
+                        titleid = cacheNode["titleid"].InnerText;
+                        romsize = cacheNode["romsize"].InnerText;
+                        usedspace = cacheNode["usedspace"].InnerText;
+                    }
+
+                    file.TitleID = titleid;
+                    file.ROMSize = romsize;
+                    file.UsedSpace = usedspace;
+                }
+            }
+
+            doc.Load("db.xml");
+            foreach (FileData file in files) {
+                FileData data = new FileData();
+
+                cacheDoc.Load("cache.dat");
+
+                if (file.TitleID == "") {
+                    data = Util.GetFileData(file.FilePath);
+                    XDocument xDocument = XDocument.Load("cache.dat");
+                    XElement root = xDocument.Element("xciorganizer");
+                    IEnumerable<XElement> rows = root.Descendants("pathpair");
+                    XElement firstRow = rows.First();
+                    firstRow.AddBeforeSelf(
+                       new XElement("pathpair",
+                       new XElement("path", file.FilePath),
+                       new XElement("titleid", data.TitleID),
+                       new XElement("romsize", data.ROMSize),
+                       new XElement("usedspace", data.UsedSpace)));
+
+                    xDocument.Save("cache.dat");
+                    Debug.WriteLine(file.FilePath + " written to cache");
+                }
+                else {
+                    data.TitleID = file.TitleID;
+                    data.ROMSize = file.ROMSize;
+                    data.UsedSpace = file.UsedSpace;
+                    Debug.WriteLine(file.FilePath + " read from cache");
+                }
+
+                var nodePath = "releases/release[titleid = '" + "0" + data.TitleID + "']";
+                var node = doc.SelectSingleNode(nodePath);
+                var releaseid = "";
+                var region = "";
+                var languages = "";
+                var gamename = "";
+
+                if (node != null) {
+                    releaseid = node["id"].InnerText;
+                    region = node["region"].InnerText;
+                    languages = node["languages"].InnerText;
+                    gamename = node["name"].InnerText;
+
+                    // Change region to something more human
+                    if (region == "WLD") {
+                        region = "World";
+                    }
+                    else if (region == "EUR") {
+                        region = "Europe";
+                    }
+                    else if (region == "JPN") {
+                        region = "Japan";
+                    }
+                    else if (region == "KOR") {
+                        region = "Korea";
+                    }
+                    else if (region == "SPA") {
+                        region = "Spain";
+                    }
+                }
+
+                // If can't find in db.xml
+                if (gamename.Trim() == "") {
+                    data.GameName = data.FileNameWithExt;
+                    data.ReleaseID = "???";
+                }
+                else {
+                    data.GameName = gamename + " (" + region + ")" + " [" + languages + "]";
+                    data.ReleaseID = releaseid;
+                }
+
+                file.FileName = data.FileName;
+                file.FileNameWithExt = data.FileNameWithExt;
+                file.ROMSize = data.ROMSize;
+                file.UsedSpace = data.UsedSpace;
+                file.TitleID = data.TitleID;
+                file.GameName = data.GameName;
+                file.ReleaseID = data.ReleaseID;
+                //Debug.WriteLine(file.ReleaseID);
+
+            }
+
+            // Not sure about preformance
+            //files = files.OrderBy(a => int.Parse(a.ReleaseID)).ToList();
+            files = files.OrderBy(a => a.GameName).ToList();
+
+            foreach (FileData file in files) {
+                ListViewItem item = new ListViewItem();
+                item.Text = file.GameName;
+                item.SubItems.Add(file.ReleaseID);
+                item.SubItems.Add(file.TitleID);
+                item.SubItems.Add(file.ROMSize);
+                item.SubItems.Add(file.UsedSpace);
+                item.SubItems.Add(file.FilePath);
+
+                percent = (int)(++counter / (float)files.Count * 100);
+                bwUpdateFileList.ReportProgress(percent, item);
+                //System.Threading.Thread.Sleep(1000);
+            }
+        }
+
+        private void bwUpdateFileList_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            buttonsEnabled(true);
+            btnBaseFolder.Text = "Select Game Folder";
+
+            if (LV_Files.Items.Count > 0) {
+                LV_Files.Items[0].Selected = true;
+                contextMenuStrip1.Enabled = true;
+            }
+
+            if (e.Error != null) {
+                L_Status.Text = "Status: Error updating list!";
+                MessageBox.Show("Error: " + e.Error.Message);
+            }
+            else {
+                L_Status.Text = "Status: Game list refreshed!";
+            }
+
+            BT_BatchRename.Text = "[BETA] Batch Rename XCI";
+            BT_BatchTrim.Text = "[BETA] Batch Trim XCI";
+        }
+
+        private void bwUpdateFileList_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            ListViewItem item = (ListViewItem)e.UserState;
+
+            if (item.SubItems[chROMSize.Index].Text != item.SubItems[chUsedSpace.Index].Text) {
+                item.UseItemStyleForSubItems = false;
+                item.SubItems[chUsedSpace.Index].BackColor = Color.LightPink;
+            }
+
+            LV_Files.Items.Add(item);
+            btnBaseFolder.Text = e.ProgressPercentage.ToString() + "% Processed";
+        }
+
+        private void removeOldCacheEntries() {
+            // This gets rid of old entries (not sure how expensive it is to run after every UpdateFileList)
+            XmlDocument cacheDoc = new XmlDocument();
+            cacheDoc.Load("cache.dat");
+            XmlNodeList checkNodes = cacheDoc.SelectNodes("xciorganizer/pathpair/path");
+            XmlNodeList removeNodes = cacheDoc.SelectNodes("xciorganizer/pathpair");
+            for (int i = checkNodes.Count - 1; i >= 0; i--) {
+                bool hasOne = false;
+                foreach (FileData file in files) {
+                    if (checkNodes[i].InnerText.Equals(file.FilePath)) {
+                        hasOne = true;
+                        break;
+                    }
+                }
+                if (!hasOne) {
+                    Debug.Write(checkNodes[i].InnerText + " removed from cache\n");
+                    removeNodes[i].ParentNode.RemoveChild(removeNodes[i]);
+                }
+            }
+            cacheDoc.Save("cache.dat");
+        }
+
+        private void B_UpdateCache_Click(object sender, EventArgs e) {
+            removeOldCacheEntries();
+        }
+
+        void Form1_Activated(object sender, EventArgs e) {
+            // Temporary fix to make user refresh list due to potential files moved/renamed
+            if (!backgroundWorker1.IsBusy && !bwUpdateFileList.IsBusy && BT_BatchRename.Enabled) {
+                BT_BatchRename.Enabled = false;
+                BT_BatchTrim.Enabled = false;
+                BT_BatchRename.Text = "You must Refresh first!";
+                BT_BatchTrim.Text = "You must Refresh first!";
             }
         }
     }
