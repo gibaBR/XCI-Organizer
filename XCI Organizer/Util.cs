@@ -6,6 +6,7 @@ using System.Linq;
 //using System.Threading.Tasks;
 using static XCI_Organizer.Form1;
 using XCI_Organizer.XTSSharp;
+using System.Xml.Linq;
 
 namespace XCI_Organizer {
     internal static class Util {
@@ -200,6 +201,97 @@ namespace XCI_Organizer {
                 fileStream.Close();
             }
             return array;
+        }
+
+        public static bool LoadGamesInfoFromXML()
+        {
+            bool result = true;
+
+            if (!File.Exists(Form1.gamesinfoXML))
+            {
+                Form1.localFilesXML = new XDocument(new XComment("List of local games"),
+                    new XElement("Games", new XAttribute("Date", DateTime.Now.ToString())));
+
+                Form1.localFilesXML.Declaration = new XDeclaration("1.0", "utf-8", "true");
+                Form1.localFilesXML.Save(@Form1.gamesinfoXML); 
+            } else
+            {
+                Form1.localFilesXML = XDocument.Load(@Form1.gamesinfoXML);
+            }
+
+            return result;
+        }
+
+        public static bool IsTitleIDOnXML(string titleID)
+        {
+            bool result = false;
+
+            XElement element = Form1.localFilesXML.Descendants("Game")
+               .FirstOrDefault(el => (string)el.Attribute("TitleID") == titleID);
+
+            if (element != null)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool IsFilePathOnXML(string filePath)
+        {
+            bool result = false;
+
+            return result;
+        }
+
+        public static bool WriteGamesInfoToXML(FileData data)
+        {
+            bool result = true;
+
+            //Try to find the game. If exists, do nothing. If not, Append
+            if (!IsTitleIDOnXML(data.TitleID))
+            {
+                XElement element = new XElement("Game", new XAttribute("TitleID", data.TitleID),
+                           new XElement("FilePath", data.FilePath),
+                           new XElement("FileName", data.FileName),
+                           new XElement("FileNameWithExt", data.FileNameWithExt),
+                           new XElement("ROMSize", data.ROMSize),
+                           new XElement("ROMSizeBytes", data.ROMSizeBytes),
+                           new XElement("UsedSpace", data.UsedSpace),
+                           new XElement("UsedSpaceBytes", data.UsedSpaceBytes),
+                           new XElement("GameName", data.GameName),
+                           new XElement("Developer", data.Developer),
+                           new XElement("GameRevision", data.GameRevision),
+                           new XElement("ProductCode", data.ProductCode),
+                           new XElement("SDKVersion", data.SDKVersion),
+                           new XElement("CartSize", data.CartSize),
+                           new XElement("MasterKeyRevision", data.MasterKeyRevision),
+                           new XElement("Icons", data.Icons),
+                           new XElement("Languagues", data.Languagues),
+                           new XElement("IsTrimmed", data.IsTrimmed)
+                   );
+                Form1.localFilesXML.Root.Add(element);
+                Form1.localFilesXML.Save(@Form1.gamesinfoXML);
+            }
+            else
+            {
+                //Nothing to do
+            }
+
+            return result;
+        }
+
+        public static bool WriteGamesInfoToXML(Dictionary<int, FileData> list)
+        {
+            bool result = false;
+
+            foreach(KeyValuePair<int, FileData> entry in list)
+            {
+                Form1.localFilesXML.Add(entry.Value);
+            }
+            Form1.localFilesXML.Save(Form1.gamesinfoXML);
+
+            return result;
         }
 
         public static FileData GetFileData(string filepath)

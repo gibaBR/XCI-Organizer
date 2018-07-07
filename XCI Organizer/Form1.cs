@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Xml.Linq;
 using XCI_Explorer;
 using XCI_Organizer.Helpers;
 using XCI_Organizer.XTSSharp;
@@ -39,6 +40,12 @@ namespace XCI_Organizer {
             "???"
         };
 
+        public static string gamesinfoXML = "gamesinfo.xml";
+        //XML documment that stores all games decrypted info (used as cache)
+        public static XDocument localFilesXML;
+        //Hash table with All .XCI files found on the Games Folder <TitleID, FileData>
+        private static Dictionary<int, FileData> filesTable;
+
         public static byte[] NcaHeaderEncryptionKey1_Prod;
         public static byte[] NcaHeaderEncryptionKey2_Prod;
         public string Mkey;
@@ -64,13 +71,24 @@ namespace XCI_Organizer {
         private long selectedSize;
 
         public class FileData {
-            public string FilePath { get; set; }
-            public string FileName { get; set; }
-            public string FileNameWithExt { get; set; }
-            public string ROMSize { get; set; }
-            public string UsedSpace { get; set; }
-            public string TitleID { get; set; }
-            public string GameName { get; set; }
+            public string   FilePath { get; set; }
+            public string   FileName { get; set; }
+            public string   FileNameWithExt { get; set; }
+            public string   ROMSize { get; set; }
+            public long     ROMSizeBytes { get; set; }
+            public string   UsedSpace { get; set; }
+            public long     UsedSpaceBytes { get; set; }
+            public string   TitleID { get; set; }
+            public string   GameName { get; set; }
+            public string   Developer { get; set; }
+            public string   GameRevision { get; set; }
+            public string   ProductCode { get; set; }
+            public string   SDKVersion { get; set; }
+            public string   CartSize { get; set; }
+            public string   MasterKeyRevision { get; set; }
+            public Image[]  Icons { get; set; }
+            public string[] Languagues { get; set; }
+            public bool     IsTrimmed { get; set; }
         }
 
         public Form1() {
@@ -78,13 +96,14 @@ namespace XCI_Organizer {
             // Set number of numbers in version number
             const int NUMBERSINVERSION = 3;
 
-            LV_Files.Columns[4].Width = 0;
+            LV_Files.Columns[4].Width = 0; //This is the FilePath. We dont want it to show on grid (for now...)
 
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
             this.Text = "XCI Organizer v" + assemblyVersion;
 
+            //Searches for keys.txt
             if (!File.Exists("keys.txt")) {
                 if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     using (var client = new WebClient()) {
@@ -98,14 +117,22 @@ namespace XCI_Organizer {
                 }
             }
 
+            //Searches for hacktool.exe
             if (!File.Exists("hactool.exe")) {
                 MessageBox.Show("hactool.exe is missing.");
                 Environment.Exit(0);
             }
 
+            //Searches for db.xml
             if (!File.Exists("db.xml")) {
                 MessageBox.Show("NSWDB is missing.\nDownloading database...");
                 updateNSWDB();
+            }
+
+            //Loads gameinfo.xml (Stores collectors games info)
+            if (Util.LoadGamesInfoFromXML())
+            {
+
             }
 
             getKey();
@@ -243,7 +270,20 @@ namespace XCI_Organizer {
                         item.BackColor =  System.Drawing.Color.IndianRed; 
                     }
                     LV_Files.Items.Add(item);
+
+                    //Just a test. Dont Do it this way
+
+                    Util.WriteGamesInfoToXML(data);
+                    
+                    //Dictionary<int, FileData> test = new Dictionary<int, FileData>();
+                    //test.Add(1, data);
+                    //localFilesXML.Add(data);
+                    //localFilesXML.Save(gamesinfoXML);
+                    break;
+                    //Util.WriteGamesInfoToXML(test);
+
                 }
+
 
                 //doc.close??
 
