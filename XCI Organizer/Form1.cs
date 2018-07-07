@@ -1087,12 +1087,15 @@ namespace XCI_Organizer {
                 file.ReleaseID = data.ReleaseID;
                 //Debug.WriteLine(file.ReleaseID);
 
+                percent = (int)(++counter / (float)files.Count * 100);
+                bwUpdateFileList.ReportProgress(percent, null);
             }
 
             // Not sure about preformance
             //files = files.OrderBy(a => int.Parse(a.ReleaseID)).ToList();
             files = files.OrderBy(a => a.GameName).ToList();
 
+            counter = 0;
             foreach (FileData file in files) {
                 ListViewItem item = new ListViewItem();
                 item.Text = file.GameName;
@@ -1130,15 +1133,22 @@ namespace XCI_Organizer {
         }
 
         private void bwUpdateFileList_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            ListViewItem item = (ListViewItem)e.UserState;
+            ListViewItem item = new ListViewItem();
 
-            if (item.SubItems[chROMSize.Index].Text != item.SubItems[chUsedSpace.Index].Text) {
-                item.UseItemStyleForSubItems = false;
-                item.SubItems[chROMSize.Index].BackColor = Color.LightPink;
+            if ((ListViewItem)e.UserState == null) {
+                btnBaseFolder.Text = e.ProgressPercentage.ToString() + "% Processed";
             }
+            else {
+                item = (ListViewItem)e.UserState;
 
-            LV_Files.Items.Add(item);
-            btnBaseFolder.Text = e.ProgressPercentage.ToString() + "% Processed";
+                if (item.SubItems[chROMSize.Index].Text != item.SubItems[chUsedSpace.Index].Text) {
+                    item.UseItemStyleForSubItems = false;
+                    item.SubItems[chROMSize.Index].BackColor = Color.LightPink;
+                }
+
+                LV_Files.Items.Add(item);
+                btnBaseFolder.Text = e.ProgressPercentage.ToString() + "% Added";
+            }
         }
 
         private void removeOldCacheEntries() {
