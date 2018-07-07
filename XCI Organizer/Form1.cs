@@ -900,6 +900,10 @@ namespace XCI_Organizer {
                         //lboxFiles.SelectedIndex = counter;
                     }
                 }
+                // Info will be outdated if something is trimmed :/ Need better solution
+                if (File.Exists("cache.dat")) {
+                    File.Delete("cache.dat");
+                }
                 UpdateFileList();
                 buttonsEnabled(true);
                 L_Status.Text = "Status: Batch trimming done!";
@@ -1128,7 +1132,7 @@ namespace XCI_Organizer {
 
             if (item.SubItems[chROMSize.Index].Text != item.SubItems[chUsedSpace.Index].Text) {
                 item.UseItemStyleForSubItems = false;
-                item.SubItems[chUsedSpace.Index].BackColor = Color.LightPink;
+                item.SubItems[chROMSize.Index].BackColor = Color.LightPink;
             }
 
             LV_Files.Items.Add(item);
@@ -1158,7 +1162,9 @@ namespace XCI_Organizer {
         }
 
         private void B_UpdateCache_Click(object sender, EventArgs e) {
+            L_Status.Text = "Status: Removing old cache entries...";
             removeOldCacheEntries();
+            L_Status.Text = "Status: Cache updated!";
         }
 
         void Form1_Activated(object sender, EventArgs e) {

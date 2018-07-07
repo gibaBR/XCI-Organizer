@@ -76,6 +76,7 @@
             this.LB_SelectedData = new System.Windows.Forms.Label();
             this.TV_Partitions = new System.Windows.Forms.TreeView();
             this.TABP_TOOLS = new System.Windows.Forms.TabPage();
+            this.L_Status = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.B_UpdateCache = new System.Windows.Forms.Button();
             this.BT_BatchTrim = new System.Windows.Forms.Button();
@@ -95,7 +96,6 @@
             this.chUsedSpace = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chFilePath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.bwUpdateFileList = new System.ComponentModel.BackgroundWorker();
-            this.L_Status = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -607,6 +607,16 @@
             this.TABP_TOOLS.Text = "Tools";
             this.TABP_TOOLS.UseVisualStyleBackColor = true;
             // 
+            // L_Status
+            // 
+            this.L_Status.AutoSize = true;
+            this.L_Status.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.L_Status.Location = new System.Drawing.Point(138, 24);
+            this.L_Status.Name = "L_Status";
+            this.L_Status.Size = new System.Drawing.Size(82, 16);
+            this.L_Status.TabIndex = 6;
+            this.L_Status.Text = "Status: Idle...";
+            // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.B_UpdateCache);
@@ -776,16 +786,6 @@
             this.bwUpdateFileList.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwUpdateFileList_DoWork);
             this.bwUpdateFileList.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFileList_ProgressChanged);
             this.bwUpdateFileList.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFileList_RunWorkerCompleted);
-            // 
-            // L_Status
-            // 
-            this.L_Status.AutoSize = true;
-            this.L_Status.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.L_Status.Location = new System.Drawing.Point(138, 24);
-            this.L_Status.Name = "L_Status";
-            this.L_Status.Size = new System.Drawing.Size(82, 16);
-            this.L_Status.TabIndex = 6;
-            this.L_Status.Text = "Status: Idle...";
             // 
             // Form1
             // 
