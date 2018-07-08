@@ -53,6 +53,7 @@ namespace XCI_Organizer {
         private BetterTreeNode rootNode;
         public List<char> chars = new List<char>();
         List<FileData> files = new List<FileData>();
+        int sortByThis;
 
         private long[] SecureSize;
         private long[] NormalSize;
@@ -74,19 +75,26 @@ namespace XCI_Organizer {
             public string TitleID { get; set; } = "";
             public string GameName { get; set; } = "";
             public string ReleaseID { get; set; } = "";
+            public string Region { get; set; } = "";
+            public string Languages { get; set; } = "";
         }
 
         public Form1() {
             InitializeComponent();
+
             // Set number of numbers in version number
             const int NUMBERSINVERSION = 3;
 
             B_CopyXCI.Visible = false;
+            chUsedSpace.Width = 0;
+
+            // Default sorting when program starts
+            //sortByThis = chReleaseID.Index;
 
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion + "rev004";
+            this.Text = "XCI Organizer v" + assemblyVersion;
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
@@ -158,12 +166,21 @@ namespace XCI_Organizer {
             folderFileDialog.Description = "Select the base folder for your collection:";
             if (folderFileDialog.ShowDialog() == DialogResult.OK) {
                 ini.IniWriteValue("Config", "BaseFolder", folderFileDialog.SelectedPath);
+                ini.IniWriteValue("Config", "DefaultSort", "0");
                 UpdateFileList();
             }
         }
 
         private void UpdateFileList() {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
+
+            try {
+                sortByThis = int.Parse(ini.IniReadValue("Config", "DefaultSort"));
+            }
+            catch {
+                sortByThis = 0;
+            }
+
             contextMenuStrip1.Enabled = false;
 
             if (Directory.Exists(selectedPath) && selectedPath.Trim() != "") {
@@ -1060,7 +1077,10 @@ namespace XCI_Organizer {
                     Debug.WriteLine(file.FilePath + " read from cache");
                 }
 
-                var nodePath = "releases/release[titleid = '" + "0" + data.TitleID + "']";
+                // Fix TitleID
+                data.TitleID = "0" + data.TitleID;
+
+                var nodePath = "releases/release[titleid = '" + data.TitleID + "']";
                 var node = doc.SelectSingleNode(nodePath);
                 var releaseid = "";
                 var region = "";
@@ -1095,9 +1115,10 @@ namespace XCI_Organizer {
                 if (gamename.Trim() == "") {
                     data.GameName = Path.GetFileNameWithoutExtension(file.FilePath);
                     data.ReleaseID = "???";
+                    data.Region = "???";
                 }
                 else {
-                    data.GameName = gamename + " (" + region + ")" + " [" + languages + "]";
+                    data.GameName = gamename;
                     data.ReleaseID = releaseid;
                 }
 
@@ -1108,6 +1129,8 @@ namespace XCI_Organizer {
                 file.TitleID = data.TitleID;
                 file.GameName = data.GameName;
                 file.ReleaseID = data.ReleaseID;
+                file.Region = region;
+                file.Languages = languages;
                 //Debug.WriteLine(file.ReleaseID);
 
                 percent = (int)(++counter / (float)files.Count * 100);
@@ -1115,14 +1138,20 @@ namespace XCI_Organizer {
             }
 
             // Not sure about preformance
-            //files = files.OrderBy(a => int.Parse(a.ReleaseID)).ToList();
-            files = files.OrderBy(a => a.GameName).ToList();
+            if (sortByThis == chReleaseID.Index) {
+                files = files.OrderBy(a => int.Parse(a.ReleaseID)).ToList();
+            }
+            else {
+                files = files.OrderBy(a => a.GameName).ToList();
+            }
 
             counter = 0;
             foreach (FileData file in files) {
                 ListViewItem item = new ListViewItem();
-                item.Text = file.GameName;
-                item.SubItems.Add(file.ReleaseID);
+                item.Text = file.ReleaseID;
+                item.SubItems.Add(file.GameName);
+                item.SubItems.Add(file.Region);
+                item.SubItems.Add(file.Languages);
                 item.SubItems.Add(file.TitleID);
                 item.SubItems.Add(file.ROMSize);
                 item.SubItems.Add(file.UsedSpace);
@@ -1209,6 +1238,25 @@ namespace XCI_Organizer {
                 BT_BatchTrim.Enabled = false;
                 BT_BatchRename.Text = "You must Refresh first!";
                 BT_BatchTrim.Text = "You must Refresh first!";
+            }
+        }
+
+        private void LV_Files_ColumnClick(object sender, ColumnClickEventArgs e) {
+            // Temporary way to sort
+            bool sortChanged = false;
+
+            if (e.Column == chReleaseID.Index) {
+                sortByThis = chReleaseID.Index;
+                sortChanged = true;
+            }
+            else if (e.Column == chGameName.Index) {
+                sortByThis = chGameName.Index;
+                sortChanged = true;
+            }
+
+            if(sortChanged) {
+                ini.IniWriteValue("Config", "DefaultSort", sortByThis.ToString());
+                UpdateFileList();
             }
         }
     }

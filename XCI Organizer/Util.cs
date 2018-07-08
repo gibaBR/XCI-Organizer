@@ -309,7 +309,6 @@ namespace XCI_Organizer {
                 }
                 fileStream.Close();
 
-
                 NCA.NCA_Headers[0] = new NCA.NCA_Header(DecryptNCAHeader(filepath, gameNcaOffset));
                 result.TitleID = NCA.NCA_Headers[0].TitleID.ToString("X");
             }

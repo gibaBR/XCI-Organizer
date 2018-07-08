@@ -93,11 +93,13 @@
             this.LV_Files = new System.Windows.Forms.ListView();
             this.chGameName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chReleaseID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chTitleID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chLanguages = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chROMSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chUsedSpace = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chFilePath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.bwUpdateFileList = new System.ComponentModel.BackgroundWorker();
+            this.chRegion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chTitleID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -682,7 +684,7 @@
             this.R_BatchRenameCustomText.Name = "R_BatchRenameCustomText";
             this.R_BatchRenameCustomText.Size = new System.Drawing.Size(192, 20);
             this.R_BatchRenameCustomText.TabIndex = 7;
-            this.R_BatchRenameCustomText.Text = "%NAME%";
+            this.R_BatchRenameCustomText.Text = "%ID% - %NAME% (%REGION%)";
             this.R_BatchRenameCustomText.Enter += new System.EventHandler(this.R_BatchRenameCustomText_Enter);
             // 
             // R_BatchRenameCustom
@@ -757,8 +759,10 @@
             // 
             this.LV_Files.AllowColumnReorder = true;
             this.LV_Files.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.chGameName,
             this.chReleaseID,
+            this.chGameName,
+            this.chRegion,
+            this.chLanguages,
             this.chTitleID,
             this.chROMSize,
             this.chUsedSpace,
@@ -766,7 +770,6 @@
             this.LV_Files.ContextMenuStrip = this.contextMenuStrip1;
             this.LV_Files.FullRowSelect = true;
             this.LV_Files.GridLines = true;
-            this.LV_Files.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.LV_Files.Location = new System.Drawing.Point(2, 42);
             this.LV_Files.MultiSelect = false;
             this.LV_Files.Name = "LV_Files";
@@ -774,32 +777,33 @@
             this.LV_Files.TabIndex = 6;
             this.LV_Files.UseCompatibleStateImageBehavior = false;
             this.LV_Files.View = System.Windows.Forms.View.Details;
+            this.LV_Files.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.LV_Files_ColumnClick);
             this.LV_Files.SelectedIndexChanged += new System.EventHandler(this.LV_Files_SelectedIndexChanged);
             // 
             // chGameName
             // 
             this.chGameName.Text = "Game Name";
-            this.chGameName.Width = 329;
+            this.chGameName.Width = 265;
             // 
             // chReleaseID
             // 
             this.chReleaseID.Text = "ID";
-            this.chReleaseID.Width = 39;
+            this.chReleaseID.Width = 30;
             // 
-            // chTitleID
+            // chLanguages
             // 
-            this.chTitleID.Text = "Title ID";
-            this.chTitleID.Width = 107;
+            this.chLanguages.Text = "Languages";
+            this.chLanguages.Width = 117;
             // 
             // chROMSize
             // 
             this.chROMSize.Text = "ROM Size";
-            this.chROMSize.Width = 87;
+            this.chROMSize.Width = 73;
             // 
             // chUsedSpace
             // 
             this.chUsedSpace.Text = "Used Space";
-            this.chUsedSpace.Width = 90;
+            this.chUsedSpace.Width = 73;
             // 
             // chFilePath
             // 
@@ -811,6 +815,16 @@
             this.bwUpdateFileList.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwUpdateFileList_DoWork);
             this.bwUpdateFileList.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFileList_ProgressChanged);
             this.bwUpdateFileList.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFileList_RunWorkerCompleted);
+            // 
+            // chRegion
+            // 
+            this.chRegion.Text = "Region";
+            this.chRegion.Width = 52;
+            // 
+            // chTitleID
+            // 
+            this.chTitleID.Text = "Title ID";
+            this.chTitleID.Width = 114;
             // 
             // Form1
             // 
@@ -913,7 +927,7 @@
         private System.Windows.Forms.RadioButton R_BatchRenameSimple;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ListView LV_Files;
-        private System.Windows.Forms.ColumnHeader chTitleID;
+        private System.Windows.Forms.ColumnHeader chLanguages;
         private System.Windows.Forms.ColumnHeader chGameName;
         private System.Windows.Forms.ColumnHeader chROMSize;
         private System.Windows.Forms.ColumnHeader chUsedSpace;
@@ -922,6 +936,8 @@
         private System.Windows.Forms.ColumnHeader chReleaseID;
         private System.Windows.Forms.Button B_UpdateCache;
         private System.Windows.Forms.Label L_Status;
+        private System.Windows.Forms.ColumnHeader chRegion;
+        private System.Windows.Forms.ColumnHeader chTitleID;
     }
 }
 
