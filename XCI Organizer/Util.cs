@@ -6,6 +6,7 @@ using System.Linq;
 //using System.Threading.Tasks;
 using static XCI_Organizer.Form1;
 using XCI_Organizer.XTSSharp;
+using System.Xml.Linq;
 
 namespace XCI_Organizer {
     internal static class Util {
@@ -170,7 +171,8 @@ namespace XCI_Organizer {
             return array;
         }
 
-        public static FileData GetFileData(string filepath) {
+        public static FileData GetFileData(string filepath)
+        {
             FileData result = new FileData();
             //Basic Info
             result.FilePath = filepath;

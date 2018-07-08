@@ -40,6 +40,12 @@ namespace XCI_Organizer {
             "???"
         };
 
+        public static string gamesinfoXML = "gamesinfo.xml";
+        //XML documment that stores all games decrypted info (used as cache)
+        public static XDocument localFilesXML;
+        //Hash table with All .XCI files found on the Games Folder <TitleID, FileData>
+        private static Dictionary<int, FileData> filesTable;
+
         public static byte[] NcaHeaderEncryptionKey1_Prod;
         public static byte[] NcaHeaderEncryptionKey2_Prod;
         public string Mkey;
@@ -91,12 +97,14 @@ namespace XCI_Organizer {
             // Default sorting when program starts
             //sortByThis = chReleaseID.Index;
 
+
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
             this.Text = "XCI Organizer v" + assemblyVersion;
             bwUpdateFileList.WorkerReportsProgress = true;
 
+            //Searches for keys.txt
             if (!File.Exists("keys.txt")) {
                 if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     using (var client = new WebClient()) {
@@ -110,14 +118,22 @@ namespace XCI_Organizer {
                 }
             }
 
+            //Searches for hacktool.exe
             if (!File.Exists("hactool.exe")) {
                 MessageBox.Show("hactool.exe is missing.");
                 Environment.Exit(0);
             }
 
+            //Searches for db.xml
             if (!File.Exists("db.xml")) {
                 MessageBox.Show("NSWDB is missing.\nDownloading database...");
                 updateNSWDB();
+            }
+
+            //Loads gameinfo.xml (Stores collectors games info)
+            if (Util.LoadGamesInfoFromXML())
+            {
+
             }
 
             getKey();
