@@ -12,7 +12,7 @@ Manage your XCI library easily
 ## Requirements
 * Visual Studio 2017
 * [Hactool](https://github.com/SciresM/hactool/releases)
-* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/Get-keys.txt.bat))
+* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/)
 
 ![main](https://imgur.com/0sRGSOh.jpg)
 
