@@ -85,6 +85,8 @@
             this.BT_BatchTrim = new System.Windows.Forms.Button();
             this.B_UpdateNSWDB = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.R_BatchRenameCustomText = new System.Windows.Forms.TextBox();
+            this.R_BatchRenameCustom = new System.Windows.Forms.RadioButton();
             this.R_BatchRenameScene = new System.Windows.Forms.RadioButton();
             this.R_BatchRenameDetailed = new System.Windows.Forms.RadioButton();
             this.BT_BatchRename = new System.Windows.Forms.Button();
@@ -640,6 +642,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.R_BatchRenameCustomText);
+            this.groupBox2.Controls.Add(this.R_BatchRenameCustom);
             this.groupBox2.Controls.Add(this.R_BatchRenameScene);
             this.groupBox2.Controls.Add(this.R_BatchRenameDetailed);
             this.groupBox2.Controls.Add(this.BT_BatchRename);
@@ -650,6 +654,26 @@
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Rename Options";
+            // 
+            // R_BatchRenameCustomText
+            // 
+            this.R_BatchRenameCustomText.Location = new System.Drawing.Point(98, 146);
+            this.R_BatchRenameCustomText.Name = "R_BatchRenameCustomText";
+            this.R_BatchRenameCustomText.Size = new System.Drawing.Size(192, 20);
+            this.R_BatchRenameCustomText.TabIndex = 7;
+            this.R_BatchRenameCustomText.Text = "[%ID%] %NAME%";
+            this.R_BatchRenameCustomText.Enter += new System.EventHandler(this.R_BatchRenameCustomText_Enter);
+            // 
+            // R_BatchRenameCustom
+            // 
+            this.R_BatchRenameCustom.AutoSize = true;
+            this.R_BatchRenameCustom.Location = new System.Drawing.Point(18, 146);
+            this.R_BatchRenameCustom.Name = "R_BatchRenameCustom";
+            this.R_BatchRenameCustom.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.R_BatchRenameCustom.Size = new System.Drawing.Size(60, 17);
+            this.R_BatchRenameCustom.TabIndex = 6;
+            this.R_BatchRenameCustom.Text = "Custom";
+            this.R_BatchRenameCustom.UseVisualStyleBackColor = true;
             // 
             // R_BatchRenameScene
             // 
@@ -844,6 +868,8 @@
         private System.Windows.Forms.ToolStripMenuItem autoRenameFileToolStripMenuItem;
         private System.Windows.Forms.Button B_UpdateNSWDB;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.TextBox R_BatchRenameCustomText;
+        private System.Windows.Forms.RadioButton R_BatchRenameCustom;
         private System.Windows.Forms.RadioButton R_BatchRenameScene;
         private System.Windows.Forms.RadioButton R_BatchRenameDetailed;
         private System.Windows.Forms.RadioButton R_BatchRenameSimple;
