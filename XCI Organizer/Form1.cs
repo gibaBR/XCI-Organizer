@@ -81,7 +81,7 @@ namespace XCI_Organizer {
             // Set number of numbers in version number
             const int NUMBERSINVERSION = 3;
 
-            //LV_Files.Columns[4].Width = 0;
+            B_CopyXCI.Visible = false;
 
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
@@ -759,6 +759,13 @@ namespace XCI_Organizer {
             }
         }
 
+        private void R_BatchRenameCustomText_Enter(object sender, EventArgs e) {
+            TextBox tb = (TextBox)sender;
+            ToolTip tt = new ToolTip();
+            int VisibleTime = 7000;
+            tt.Show("Options:\n%ID%\n%NAME%\n%PUBLISHER%\n%GROUP%\n%REGION%\n%LANGUAGES%\n%SERIAL%\n%TITLEID%\n%RELEASENAME%\n%FIRMWARE%", tb, 0, 20, VisibleTime);
+        }
+
         private void BT_BatchRename_Click(object sender, EventArgs e) {
             // Added back into main function because I was trying to debug it. Needs to be added into Util again
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
@@ -803,9 +810,14 @@ namespace XCI_Organizer {
                     if (node != null) {
                         var id = node["id"].InnerText;
                         var name = node["name"].InnerText;
+                        var publisher = node["publisher"].InnerText;
+                        var group = node["group"].InnerText;
                         var region = node["region"].InnerText;
                         var languages = node["languages"].InnerText;
+                        var serial = node["serial"].InnerText;
+                        var titleid = node["titleid"].InnerText;
                         var releaseName = node["releasename"].InnerText;
+                        var firmware = node["firmware"].InnerText;
                         string nameScheme;
 
                         // Change region to something more human
@@ -831,8 +843,21 @@ namespace XCI_Organizer {
                         else if (R_BatchRenameDetailed.Checked) {
                             nameScheme = id.ToString().PadLeft(4, '0') + " - " + name + " (" + region + ") (" + languages + ")";
                         }
-                        else {
+                        else if (R_BatchRenameScene.Checked) {
                             nameScheme = releaseName;
+                        }
+                        else {
+                            nameScheme = R_BatchRenameCustomText.Text
+                                .Replace("%ID%", id.ToString().PadLeft(4, '0'))
+                              .Replace("%NAME%", name)
+                               .Replace("%PUBLISHER%", publisher)
+                               .Replace("%GROUP%", group)
+                               .Replace("%REGION%", region)
+                               .Replace("%LANGUAGES%", languages)
+                               .Replace("%SERIAL%", serial)
+                               .Replace("%TITLEID%", titleid)
+                               .Replace("%RELEASENAME%", releaseName)
+                               .Replace("%FIRMWARE%", firmware);
                         }
 
                         checkedName = string.Join("", nameScheme.Split(invalidChars.ToArray())); ;
@@ -848,9 +873,7 @@ namespace XCI_Organizer {
                         renamedFiles.Add(checkedName);
                     }
                     else {
-                        /* This is a temporary renaming scheme until we can include region and other unique information
-                         * This will rename duplicate XCI (doesn't matter if they're different regions) and append "_DATESCHEME"
-                         * This is also used to handle duplicates
+                        /* This will rename duplicate XCI and append "_DATESCHEME"
                          */
                         // Check if the file has already been renamed according to date naming scheme
                         bool alreadyRenamed = file.FilePath.Contains(newPath + "_" + DateTime.Now.ToString("yy"));

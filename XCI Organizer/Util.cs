@@ -90,6 +90,7 @@ namespace XCI_Organizer {
                 foreach (string f in Directory.GetFiles(folder, "*.xci", SearchOption.AllDirectories)) {
                     FileData path = new FileData();
                     path.FilePath = f;
+                    //System.Diagnostics.Debug.WriteLine();
                     list.Add(path);
                 }
             }
