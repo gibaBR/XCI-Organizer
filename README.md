@@ -17,14 +17,10 @@ Manage your XCI library easily
 ![main](https://imgur.com/RV2EGB6.jpg)
 
 ## Latest Changelog
-v0.0.8rev003 [PRE-RELEASE]
-* [FEATURE] Added cache to reduce load times
-* Program won't freeze while loading files! (needs testing with large library)
-* Added status indicator in the Tools tab
-* Properly sort list by game name
-* Other fixes and changes I already forgot
-* [NOTE] A lot has changed under the hood, there may be bugs and so this is a PRE-RELEASE
-* [DEV-NOTE] The code is getting messy fast. We need to take some time and organize things
+**v0.0.9 [PRE-RELEASE]**
+* [FEATURE] Custom batch file renaming schemes thanks to RedSparr0w
+* [FEATURE] Basic ascending sorting by ID or Game Name
+* Added more information to list
 
 ## Build Instructions
 * Open `XCI Organizer.sln`
