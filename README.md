@@ -14,7 +14,7 @@ Manage your XCI library easily
 * [Hactool](https://github.com/SciresM/hactool/releases)
 * [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/Get-keys.txt.bat))
 
-![main](https://imgur.com/RV2EGB6.jpg)
+![main](https://imgur.com/0sRGSOh.jpg)
 
 ## Latest Changelog
 **v0.0.9 [PRE-RELEASE]**
