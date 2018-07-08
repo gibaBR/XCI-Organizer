@@ -94,7 +94,7 @@ namespace XCI_Organizer {
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion;
+            this.Text = "XCI Organizer v" + assemblyVersion + "rev1";
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
@@ -1114,12 +1114,15 @@ namespace XCI_Organizer {
                 // If can't find in db.xml
                 if (gamename.Trim() == "") {
                     data.GameName = Path.GetFileNameWithoutExtension(file.FilePath);
-                    data.ReleaseID = "???";
+                    data.ReleaseID = "0";
                     data.Region = "???";
+                    data.Languages = "???";
                 }
                 else {
                     data.GameName = gamename;
                     data.ReleaseID = releaseid;
+                    data.Region = region;
+                    data.Languages = languages;
                 }
 
                 file.FileName = data.FileName;
@@ -1129,8 +1132,8 @@ namespace XCI_Organizer {
                 file.TitleID = data.TitleID;
                 file.GameName = data.GameName;
                 file.ReleaseID = data.ReleaseID;
-                file.Region = region;
-                file.Languages = languages;
+                file.Region = data.Region;
+                file.Languages = data.Languages;
                 //Debug.WriteLine(file.ReleaseID);
 
                 percent = (int)(++counter / (float)files.Count * 100);
@@ -1148,7 +1151,7 @@ namespace XCI_Organizer {
             counter = 0;
             foreach (FileData file in files) {
                 ListViewItem item = new ListViewItem();
-                item.Text = file.ReleaseID;
+                item.Text = file.ReleaseID.PadLeft(4, '0');
                 item.SubItems.Add(file.GameName);
                 item.SubItems.Add(file.Region);
                 item.SubItems.Add(file.Languages);

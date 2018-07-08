@@ -91,15 +91,15 @@
             this.BT_Refresh = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.LV_Files = new System.Windows.Forms.ListView();
-            this.chGameName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chReleaseID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chGameName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chRegion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chLanguages = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chTitleID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chROMSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chUsedSpace = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chFilePath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.bwUpdateFileList = new System.ComponentModel.BackgroundWorker();
-            this.chRegion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chTitleID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -780,20 +780,30 @@
             this.LV_Files.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.LV_Files_ColumnClick);
             this.LV_Files.SelectedIndexChanged += new System.EventHandler(this.LV_Files_SelectedIndexChanged);
             // 
-            // chGameName
-            // 
-            this.chGameName.Text = "Game Name";
-            this.chGameName.Width = 265;
-            // 
             // chReleaseID
             // 
             this.chReleaseID.Text = "ID";
-            this.chReleaseID.Width = 30;
+            this.chReleaseID.Width = 38;
+            // 
+            // chGameName
+            // 
+            this.chGameName.Text = "Game Name";
+            this.chGameName.Width = 258;
+            // 
+            // chRegion
+            // 
+            this.chRegion.Text = "Region";
+            this.chRegion.Width = 52;
             // 
             // chLanguages
             // 
             this.chLanguages.Text = "Languages";
             this.chLanguages.Width = 117;
+            // 
+            // chTitleID
+            // 
+            this.chTitleID.Text = "Title ID";
+            this.chTitleID.Width = 114;
             // 
             // chROMSize
             // 
@@ -815,16 +825,6 @@
             this.bwUpdateFileList.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwUpdateFileList_DoWork);
             this.bwUpdateFileList.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFileList_ProgressChanged);
             this.bwUpdateFileList.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFileList_RunWorkerCompleted);
-            // 
-            // chRegion
-            // 
-            this.chRegion.Text = "Region";
-            this.chRegion.Width = 52;
-            // 
-            // chTitleID
-            // 
-            this.chTitleID.Text = "Title ID";
-            this.chTitleID.Width = 114;
             // 
             // Form1
             // 
