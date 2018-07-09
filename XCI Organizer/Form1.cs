@@ -778,8 +778,10 @@ namespace XCI_Organizer {
         }
 
         private void R_BatchRenameCustomText_Enter(object sender, EventArgs e) {
+            // Check Custom Rename on focus of textbox
             R_BatchRenameCustom.Checked = true;
 
+            // Show tooltip with options on focus
             TextBox tb = (TextBox)sender;
             ToolTip tt = new ToolTip();
             int VisibleTime = 7000;
