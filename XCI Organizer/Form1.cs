@@ -778,6 +778,8 @@ namespace XCI_Organizer {
         }
 
         private void R_BatchRenameCustomText_Enter(object sender, EventArgs e) {
+            R_BatchRenameCustom.Checked = true;
+
             TextBox tb = (TextBox)sender;
             ToolTip tt = new ToolTip();
             int VisibleTime = 7000;
