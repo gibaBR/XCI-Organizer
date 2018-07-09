@@ -170,33 +170,42 @@ namespace XCI_Organizer {
             return array;
         }
 
+        public static FileData GetFileSize (string filepath) {
+            FileData result = new FileData();
+
+            //Get File Size
+            string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
+            double num_fs = (double)new FileInfo(filepath).Length;
+            int num2_fs = 0;
+
+            while (num_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
+                num2_fs++;
+                num_fs /= 1024.0;
+            }
+            result.ROMSize = $"{num_fs:0.##} {array_fs[num2_fs]}";
+
+            double num3_fs = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
+            num2_fs = 0;
+            while (num3_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
+                num2_fs++;
+                num3_fs /= 1024.0;
+            }
+            result.UsedSpace = $"{num3_fs:0.##} {array_fs[num2_fs]}";
+
+            return result;
+        }
+
         public static FileData GetFileData(string filepath) {
             FileData result = new FileData();
-            //Basic Info
-            result.FilePath = filepath;
-            result.FileName = Path.GetFileNameWithoutExtension(filepath);
-            result.FileNameWithExt = Path.GetFileName(filepath);
-
+            
             if (CheckXCI(filepath)) {
                 //Get File Size
-                string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
-                double num_fs = (double)new FileInfo(filepath).Length;
-                int num2_fs = 0;
+                result = GetFileSize(filepath);
 
-                while (num_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
-                    num2_fs++;
-                    num_fs /= 1024.0;
-                }
-                result.ROMSize = $"{num_fs:0.##} {array_fs[num2_fs]}";
-
-                double num3_fs = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
-                num2_fs = 0;
-                while (num3_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
-                    num2_fs++;
-                    num3_fs /= 1024.0;
-                }
-                result.UsedSpace = $"{num3_fs:0.##} {array_fs[num2_fs]}";
-
+                //Basic Info
+                result.FilePath = filepath;
+                result.FileName = Path.GetFileNameWithoutExtension(filepath);
+                result.FileNameWithExt = Path.GetFileName(filepath);
 
                 //Load Deep File Info (Probably we should clean it a bit more)
                 string actualHash;
