@@ -223,7 +223,7 @@
             this.groupBox1.Controls.Add(this.B_ClearCert);
             this.groupBox1.Controls.Add(this.B_ImportCert);
             this.groupBox1.Controls.Add(this.B_ExportCert);
-            this.groupBox1.Location = new System.Drawing.Point(137, 155);
+            this.groupBox1.Location = new System.Drawing.Point(140, 195);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(301, 52);
             this.groupBox1.TabIndex = 55;
@@ -428,9 +428,9 @@
             // PB_GameIcon
             // 
             this.PB_GameIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.PB_GameIcon.Location = new System.Drawing.Point(89, 221);
+            this.PB_GameIcon.Location = new System.Drawing.Point(163, 302);
             this.PB_GameIcon.Name = "PB_GameIcon";
-            this.PB_GameIcon.Size = new System.Drawing.Size(399, 399);
+            this.PB_GameIcon.Size = new System.Drawing.Size(256, 256);
             this.PB_GameIcon.TabIndex = 26;
             this.PB_GameIcon.TabStop = false;
             this.PB_GameIcon.Click += new System.EventHandler(this.PB_GameIcon_Click);
