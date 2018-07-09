@@ -170,19 +170,17 @@ namespace XCI_Organizer {
             return array;
         }
 
-        public static FileData GetFileSize (string filepath) {
-            FileData result = new FileData();
-
+        public static void GetFileSize (ref FileData file) {
             //Get File Size
             string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
-            double num_fs = (double)new FileInfo(filepath).Length;
+            double num_fs = (double)new FileInfo(file.FilePath).Length;
             int num2_fs = 0;
 
             while (num_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
                 num2_fs++;
                 num_fs /= 1024.0;
             }
-            result.ROMSize = $"{num_fs:0.##} {array_fs[num2_fs]}";
+            file.ROMSize = $"{num_fs:0.##} {array_fs[num2_fs]}";
 
             double num3_fs = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
             num2_fs = 0;
@@ -190,22 +188,19 @@ namespace XCI_Organizer {
                 num2_fs++;
                 num3_fs /= 1024.0;
             }
-            result.UsedSpace = $"{num3_fs:0.##} {array_fs[num2_fs]}";
-
-            return result;
+            file.UsedSpace = $"{num3_fs:0.##} {array_fs[num2_fs]}";
         }
 
         public static FileData GetFileData(string filepath) {
             FileData result = new FileData();
-            
+            //Basic Info
+            result.FilePath = filepath;
+            result.FileName = Path.GetFileNameWithoutExtension(filepath);
+            result.FileNameWithExt = Path.GetFileName(filepath);
+
             if (CheckXCI(filepath)) {
                 //Get File Size
-                result = GetFileSize(filepath);
-
-                //Basic Info
-                result.FilePath = filepath;
-                result.FileName = Path.GetFileNameWithoutExtension(filepath);
-                result.FileNameWithExt = Path.GetFileName(filepath);
+                GetFileSize(ref result);
 
                 //Load Deep File Info (Probably we should clean it a bit more)
                 string actualHash;
