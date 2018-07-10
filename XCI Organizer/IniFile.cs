@@ -52,11 +52,11 @@ namespace XCI_Organizer {
         /// <PARAM name="Key"></PARAM>
         /// <PARAM name="Path"></PARAM>
         /// <returns></returns>
-        public string IniReadValue(string Section, string Key) {
+        public string IniReadValue(string Section, string Key, string Default = "") {
             StringBuilder temp = new StringBuilder(255);
             int i = GetPrivateProfileString(Section, Key, "", temp,
                                             255, this.path);
-            return temp.ToString();
+            return String.IsNullOrEmpty(temp.ToString()) ? Default : temp.ToString();
 
         }
     }
