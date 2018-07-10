@@ -175,12 +175,7 @@ namespace XCI_Organizer {
         private void UpdateFileList() {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
 
-            try {
-                sortByThis = int.Parse(ini.IniReadValue("Config", "DefaultSort"));
-            }
-            catch {
-                sortByThis = 0;
-            }
+            sortByThis = int.Parse(ini.IniReadValue("Config", "DefaultSort", "0"));
 
             contextMenuStrip1.Enabled = false;
 
@@ -383,6 +378,7 @@ namespace XCI_Organizer {
             ini = new IniFile((AppDomain.CurrentDomain.BaseDirectory) + "XCI_Organizer.ini");
             UpdateFileList();
             //ini.IniReadValue("Config", "BaseFolder");
+            R_BatchRenameCustomText.Text = ini.IniReadValue("Config", "RenameCustomText", "%ID% - %NAME% (%REGION%)");
         }
 
         private void ClearFields() {
@@ -869,6 +865,8 @@ namespace XCI_Organizer {
                             nameScheme = releaseName;
                         }
                         else {
+                            ini.IniWriteValue("Config", "RenameCustomText", R_BatchRenameCustomText.Text);
+
                             nameScheme = R_BatchRenameCustomText.Text
                                 .Replace("%ID%", id.ToString().PadLeft(4, '0'))
                               .Replace("%NAME%", name)
