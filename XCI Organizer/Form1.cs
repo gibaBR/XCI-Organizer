@@ -185,7 +185,7 @@ namespace XCI_Organizer {
                 LV_Files.Items.Clear();
 
                 string[] directories = Directory.GetDirectories(selectedPath);
-                fileEntries = Directory.GetFiles(selectedPath);
+                fileEntries = Directory.GetFiles(selectedPath, "*.xci", SearchOption.AllDirectories);
                 files = Util.GetXCIsInFolder(selectedPath);
 
                 if (!bwUpdateFileList.IsBusy) {
@@ -787,14 +787,13 @@ namespace XCI_Organizer {
 
         private bool IsGamesListUpToDate() {
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-            string[] currentFileEntries = Directory.GetFiles(selectedPath);
+            string[] currentFileEntries = Directory.GetFiles(selectedPath, "*.xci", SearchOption.AllDirectories);
             return String.Join(", ", fileEntries) == String.Join(", ", currentFileEntries);
         }
 
         private void BT_BatchRename_Click(object sender, EventArgs e) {
             // Added back into main function because I was trying to debug it. Needs to be added into Util again
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-            string[] currentFileEntries = Directory.GetFiles(selectedPath);
 
             if (!IsGamesListUpToDate()) {
                 MessageBox.Show("Games directory has changed, please refresh and try again.", "XCI Organizer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
