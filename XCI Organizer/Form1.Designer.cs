@@ -842,6 +842,7 @@
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "XCI Organizer";
+            this.Activated += new System.EventHandler(this.Form1_Activated);
             this.contextMenuStrip1.ResumeLayout(false);
             this.TABC_Main.ResumeLayout(false);
             this.TABP_XCI.ResumeLayout(false);

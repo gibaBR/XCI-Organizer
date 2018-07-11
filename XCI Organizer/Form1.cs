@@ -53,7 +53,6 @@ namespace XCI_Organizer {
         private BetterTreeNode rootNode;
         public List<char> chars = new List<char>();
         List<FileData> files = new List<FileData>();
-        string[] fileEntries;
         int sortByThis;
 
         private long[] SecureSize;
@@ -185,7 +184,7 @@ namespace XCI_Organizer {
                 LV_Files.Items.Clear();
 
                 string[] directories = Directory.GetDirectories(selectedPath);
-                fileEntries = Directory.GetFiles(selectedPath, "*.xci", SearchOption.AllDirectories);
+
                 files = Util.GetXCIsInFolder(selectedPath);
 
                 if (!bwUpdateFileList.IsBusy) {
@@ -785,20 +784,9 @@ namespace XCI_Organizer {
             tt.Show("Options:\n%ID%\n%NAME%\n%PUBLISHER%\n%GROUP%\n%REGION%\n%LANGUAGES%\n%SERIAL%\n%TITLEID%\n%RELEASENAME%\n%FIRMWARE%", tb, 0, 20, VisibleTime);
         }
 
-        private bool IsGamesListUpToDate() {
-            string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-            string[] currentFileEntries = Directory.GetFiles(selectedPath, "*.xci", SearchOption.AllDirectories);
-            return String.Join(", ", fileEntries) == String.Join(", ", currentFileEntries);
-        }
-
         private void BT_BatchRename_Click(object sender, EventArgs e) {
             // Added back into main function because I was trying to debug it. Needs to be added into Util again
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-
-            if (!IsGamesListUpToDate()) {
-                MessageBox.Show("Games directory has changed, please refresh and try again.", "XCI Organizer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
 
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to rename ALL of your XCI files automatically?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                 L_Status.Text = "Status: Batch renaming files...";
@@ -935,11 +923,6 @@ namespace XCI_Organizer {
         private void BT_BatchTrim_Click(object sender, EventArgs e) {
             // This should be safe now because it uses the same files list from UpdateFileList
             string selectedPath = ini.IniReadValue("Config", "BaseFolder");
-
-            if (!IsGamesListUpToDate()) {
-                MessageBox.Show("Games directory has changed, please refresh and try again.", "XCI Organizer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
 
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                 L_Status.Text = "Status: Batch trimming...";
@@ -1252,6 +1235,16 @@ namespace XCI_Organizer {
             L_Status.Text = "Status: Removing old cache entries...";
             removeOldCacheEntries();
             L_Status.Text = "Status: Cache updated!";
+        }
+
+        void Form1_Activated(object sender, EventArgs e) {
+            // Temporary fix to make user refresh list due to potential files moved/renamed
+            if (!backgroundWorker1.IsBusy && !bwUpdateFileList.IsBusy && BT_BatchRename.Enabled) {
+                BT_BatchRename.Enabled = false;
+                BT_BatchTrim.Enabled = false;
+                BT_BatchRename.Text = "You must Refresh first!";
+                BT_BatchTrim.Text = "You must Refresh first!";
+            }
         }
 
         private void LV_Files_ColumnClick(object sender, ColumnClickEventArgs e) {
