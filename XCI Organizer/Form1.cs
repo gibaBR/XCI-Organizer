@@ -215,43 +215,41 @@ namespace XCI_Organizer {
         }
 
         private void TrimXCI() {
-            if (Util.checkFile(selectedFile)) {
-                if (MessageBox.Show("Trim XCI?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
-                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text)) {
-                        _TrimXCI();
-                        MessageBox.Show("Done.");
-                        string[] array = new string[5]
-                        {
-                            "B",
-                            "KB",
-                            "MB",
-                            "GB",
-                            "TB"
-                        };
-                        double num = (double)new FileInfo(selectedFile).Length;
-                        TB_ROMExactSize.Text = "(" + num.ToString() + " bytes)";
-                        int num2 = 0;
-                        while (num >= 1024.0 && num2 < array.Length - 1) {
-                            num2++;
-                            num /= 1024.0;
-                        }
-                        TB_ROMSize.Text = $"{num:0.##} {array[num2]}";
-                        double num3 = UsedSize = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
-                        TB_ExactUsedSpace.Text = "(" + num3.ToString() + " bytes)";
-                        num2 = 0;
-                        while (num3 >= 1024.0 && num2 < array.Length - 1) {
-                            num2++;
-                            num3 /= 1024.0;
-                        }
-                        TB_UsedSpace.Text = $"{num3:0.##} {array[num2]}";
-                    }
-                    else {
-                        MessageBox.Show("No trimming needed!");
-                    }
-                }
-            }
-            else {
+            if (!Util.checkFile(selectedFile)) {
                 MessageBox.Show("File not found");
+                return;
+            }
+            if (TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text)) {
+                MessageBox.Show("No trimming needed!");
+                return;
+            }
+            if (MessageBox.Show("Trim XCI?", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                _TrimXCI();
+                MessageBox.Show("Done.");
+                string[] array = new string[5]
+                {
+                    "B",
+                    "KB",
+                    "MB",
+                    "GB",
+                    "TB"
+                };
+                double num = (double)new FileInfo(selectedFile).Length;
+                TB_ROMExactSize.Text = "(" + num.ToString() + " bytes)";
+                int num2 = 0;
+                while (num >= 1024.0 && num2 < array.Length - 1) {
+                    num2++;
+                    num /= 1024.0;
+                }
+                TB_ROMSize.Text = $"{num:0.##} {array[num2]}";
+                double num3 = UsedSize = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
+                TB_ExactUsedSpace.Text = "(" + num3.ToString() + " bytes)";
+                num2 = 0;
+                while (num3 >= 1024.0 && num2 < array.Length - 1) {
+                    num2++;
+                    num3 /= 1024.0;
+                }
+                TB_UsedSpace.Text = $"{num3:0.##} {array[num2]}";
             }
         }
 
