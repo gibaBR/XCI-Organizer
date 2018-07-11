@@ -917,20 +917,10 @@ namespace XCI_Organizer {
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                 L_Status.Text = "Status: Batch trimming...";
                 buttonsEnabled(false);
-                int counter = 0;
-
-                //UpdateFileList();
-                //lboxFiles.SelectedIndex = counter;
-                LV_Files.Items[counter].Selected = true;
 
                 foreach (FileData file in files) {
-                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file.FilePath)) {
+                    if (!file.ROMSize.Equals(file.UsedSpace) && File.Exists(file.FilePath)) {
                         _TrimXCI();
-                    }
-
-                    if (++counter < files.Count) {
-                        LV_Files.Items[counter].Selected = true;
-                        //lboxFiles.SelectedIndex = counter;
                     }
                 }
                 // Info will be outdated if something is trimmed :/ Need better solution
