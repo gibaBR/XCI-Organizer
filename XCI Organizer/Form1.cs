@@ -813,12 +813,6 @@ namespace XCI_Organizer {
                 */
                 List<string> renamedFiles = new List<string>(); // Add renamed files to new list so duplicates aren't created
                 List<char> invalidChars = new List<char>(); // Custom list of invalid characters
-                int counter = 0;
-
-                // Uses the same exact files list from UpdateFileList function
-                //UpdateFileList();
-                LV_Files.Items[counter].Selected = true;
-                //lboxFiles.SelectedIndex = counter;
 
                 // Add characters to remove from filename here
                 invalidChars.AddRange(Path.GetInvalidFileNameChars());
@@ -835,7 +829,7 @@ namespace XCI_Organizer {
                      */
                     XmlDocument doc = new XmlDocument();
                     doc.Load("db.xml");
-                    var nodePath = "releases/release[titleid = '" + TB_TID.Text + "']";
+                    var nodePath = "releases/release[titleid = '" + file.TitleID + "']";
                     var node = doc.SelectSingleNode(nodePath);
                     if (node != null) {
                         var id = node["id"].InnerText;
@@ -921,10 +915,6 @@ namespace XCI_Organizer {
                             catch { }
                         }
                     }
-
-                    if (++counter < files.Count) {
-                        LV_Files.Items[counter].Selected = true;
-                    }
                 }
                 UpdateFileList();
                 buttonsEnabled(true);
@@ -944,20 +934,10 @@ namespace XCI_Organizer {
             if (selectedPath.Trim() != "" && MessageBox.Show("Are you sure you want to trim ALL of your XCI files automatically?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                 L_Status.Text = "Status: Batch trimming...";
                 buttonsEnabled(false);
-                int counter = 0;
-
-                //UpdateFileList();
-                //lboxFiles.SelectedIndex = counter;
-                LV_Files.Items[counter].Selected = true;
 
                 foreach (FileData file in files) {
-                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file.FilePath)) {
+                    if (!file.ROMSize.Equals(file.UsedSpace) && File.Exists(file.FilePath)) {
                         _TrimXCI();
-                    }
-
-                    if (++counter < files.Count) {
-                        LV_Files.Items[counter].Selected = true;
-                        //lboxFiles.SelectedIndex = counter;
                     }
                 }
                 // Info will be outdated if something is trimmed :/ Need better solution
