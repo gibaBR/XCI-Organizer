@@ -1,7 +1,5 @@
-﻿namespace XCI_Organizer
-{
-    partial class Form1
-    {
+﻿namespace XCI_Organizer {
+    partial class Form1 {
         /// <summary>
         /// Variável de designer necessária.
         /// </summary>
@@ -11,10 +9,8 @@
         /// Limpar os recursos que estão sendo usados.
         /// </summary>
         /// <param name="disposing">true se for necessário descartar os recursos gerenciados; caso contrário, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
+        protected override void Dispose(bool disposing) {
+            if (disposing && (components != null)) {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -26,8 +22,7 @@
         /// Método necessário para suporte ao Designer - não modifique 
         /// o conteúdo deste método com o editor de código.
         /// </summary>
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnBaseFolder = new System.Windows.Forms.Button();
@@ -81,10 +76,14 @@
             this.LB_SelectedData = new System.Windows.Forms.Label();
             this.TV_Partitions = new System.Windows.Forms.TreeView();
             this.TABP_TOOLS = new System.Windows.Forms.TabPage();
+            this.L_Status = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.B_UpdateCache = new System.Windows.Forms.Button();
             this.BT_BatchTrim = new System.Windows.Forms.Button();
             this.B_UpdateNSWDB = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.R_BatchRenameCustomText = new System.Windows.Forms.TextBox();
+            this.R_BatchRenameCustom = new System.Windows.Forms.RadioButton();
             this.R_BatchRenameScene = new System.Windows.Forms.RadioButton();
             this.R_BatchRenameDetailed = new System.Windows.Forms.RadioButton();
             this.BT_BatchRename = new System.Windows.Forms.Button();
@@ -92,11 +91,15 @@
             this.BT_Refresh = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.LV_Files = new System.Windows.Forms.ListView();
-            this.chTitleID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chReleaseID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chGameName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chRegion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chLanguages = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chTitleID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chROMSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chUsedSpace = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chFilePath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.bwUpdateFileList = new System.ComponentModel.BackgroundWorker();
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -220,7 +223,7 @@
             this.groupBox1.Controls.Add(this.B_ClearCert);
             this.groupBox1.Controls.Add(this.B_ImportCert);
             this.groupBox1.Controls.Add(this.B_ExportCert);
-            this.groupBox1.Location = new System.Drawing.Point(137, 155);
+            this.groupBox1.Location = new System.Drawing.Point(140, 195);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(301, 52);
             this.groupBox1.TabIndex = 55;
@@ -425,9 +428,9 @@
             // PB_GameIcon
             // 
             this.PB_GameIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.PB_GameIcon.Location = new System.Drawing.Point(89, 221);
+            this.PB_GameIcon.Location = new System.Drawing.Point(163, 302);
             this.PB_GameIcon.Name = "PB_GameIcon";
-            this.PB_GameIcon.Size = new System.Drawing.Size(399, 399);
+            this.PB_GameIcon.Size = new System.Drawing.Size(256, 256);
             this.PB_GameIcon.TabIndex = 26;
             this.PB_GameIcon.TabStop = false;
             this.PB_GameIcon.Click += new System.EventHandler(this.PB_GameIcon_Click);
@@ -597,6 +600,7 @@
             // 
             // TABP_TOOLS
             // 
+            this.TABP_TOOLS.Controls.Add(this.L_Status);
             this.TABP_TOOLS.Controls.Add(this.groupBox3);
             this.TABP_TOOLS.Controls.Add(this.groupBox2);
             this.TABP_TOOLS.Location = new System.Drawing.Point(4, 22);
@@ -607,16 +611,37 @@
             this.TABP_TOOLS.Text = "Tools";
             this.TABP_TOOLS.UseVisualStyleBackColor = true;
             // 
+            // L_Status
+            // 
+            this.L_Status.AutoSize = true;
+            this.L_Status.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.L_Status.Location = new System.Drawing.Point(138, 24);
+            this.L_Status.Name = "L_Status";
+            this.L_Status.Size = new System.Drawing.Size(82, 16);
+            this.L_Status.TabIndex = 6;
+            this.L_Status.Text = "Status: Idle...";
+            // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.B_UpdateCache);
             this.groupBox3.Controls.Add(this.BT_BatchTrim);
             this.groupBox3.Controls.Add(this.B_UpdateNSWDB);
-            this.groupBox3.Location = new System.Drawing.Point(141, 202);
+            this.groupBox3.Location = new System.Drawing.Point(141, 287);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(300, 151);
+            this.groupBox3.Size = new System.Drawing.Size(300, 198);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Miscellaneous";
+            // 
+            // B_UpdateCache
+            // 
+            this.B_UpdateCache.Location = new System.Drawing.Point(71, 148);
+            this.B_UpdateCache.Name = "B_UpdateCache";
+            this.B_UpdateCache.Size = new System.Drawing.Size(153, 23);
+            this.B_UpdateCache.TabIndex = 3;
+            this.B_UpdateCache.Text = "Update Cache";
+            this.B_UpdateCache.UseVisualStyleBackColor = true;
+            this.B_UpdateCache.Click += new System.EventHandler(this.B_UpdateCache_Click);
             // 
             // BT_BatchTrim
             // 
@@ -630,7 +655,7 @@
             // 
             // B_UpdateNSWDB
             // 
-            this.B_UpdateNSWDB.Location = new System.Drawing.Point(71, 93);
+            this.B_UpdateNSWDB.Location = new System.Drawing.Point(71, 94);
             this.B_UpdateNSWDB.Name = "B_UpdateNSWDB";
             this.B_UpdateNSWDB.Size = new System.Drawing.Size(153, 23);
             this.B_UpdateNSWDB.TabIndex = 2;
@@ -640,16 +665,38 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.R_BatchRenameCustomText);
+            this.groupBox2.Controls.Add(this.R_BatchRenameCustom);
             this.groupBox2.Controls.Add(this.R_BatchRenameScene);
             this.groupBox2.Controls.Add(this.R_BatchRenameDetailed);
             this.groupBox2.Controls.Add(this.BT_BatchRename);
             this.groupBox2.Controls.Add(this.R_BatchRenameSimple);
-            this.groupBox2.Location = new System.Drawing.Point(141, 17);
+            this.groupBox2.Location = new System.Drawing.Point(141, 69);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(300, 165);
+            this.groupBox2.Size = new System.Drawing.Size(300, 193);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Rename Options";
+            // 
+            // R_BatchRenameCustomText
+            // 
+            this.R_BatchRenameCustomText.Location = new System.Drawing.Point(98, 146);
+            this.R_BatchRenameCustomText.Name = "R_BatchRenameCustomText";
+            this.R_BatchRenameCustomText.Size = new System.Drawing.Size(192, 20);
+            this.R_BatchRenameCustomText.TabIndex = 7;
+            this.R_BatchRenameCustomText.Text = "%ID% - %NAME% (%REGION%)";
+            this.R_BatchRenameCustomText.Enter += new System.EventHandler(this.R_BatchRenameCustomText_Enter);
+            // 
+            // R_BatchRenameCustom
+            // 
+            this.R_BatchRenameCustom.AutoSize = true;
+            this.R_BatchRenameCustom.Location = new System.Drawing.Point(18, 146);
+            this.R_BatchRenameCustom.Name = "R_BatchRenameCustom";
+            this.R_BatchRenameCustom.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.R_BatchRenameCustom.Size = new System.Drawing.Size(60, 17);
+            this.R_BatchRenameCustom.TabIndex = 6;
+            this.R_BatchRenameCustom.Text = "Custom";
+            this.R_BatchRenameCustom.UseVisualStyleBackColor = true;
             // 
             // R_BatchRenameScene
             // 
@@ -710,12 +757,16 @@
             // 
             // LV_Files
             // 
+            this.LV_Files.AllowColumnReorder = true;
             this.LV_Files.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.chTitleID,
+            this.chReleaseID,
             this.chGameName,
+            this.chRegion,
+            this.chLanguages,
+            this.chTitleID,
             this.chROMSize,
             this.chUsedSpace,
-            this.chFileName});
+            this.chFilePath});
             this.LV_Files.ContextMenuStrip = this.contextMenuStrip1;
             this.LV_Files.FullRowSelect = true;
             this.LV_Files.GridLines = true;
@@ -726,31 +777,54 @@
             this.LV_Files.TabIndex = 6;
             this.LV_Files.UseCompatibleStateImageBehavior = false;
             this.LV_Files.View = System.Windows.Forms.View.Details;
+            this.LV_Files.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.LV_Files_ColumnClick);
             this.LV_Files.SelectedIndexChanged += new System.EventHandler(this.LV_Files_SelectedIndexChanged);
             // 
-            // chTitleID
+            // chReleaseID
             // 
-            this.chTitleID.Text = "Title ID";
-            this.chTitleID.Width = 104;
+            this.chReleaseID.Text = "ID";
+            this.chReleaseID.Width = 38;
             // 
             // chGameName
             // 
             this.chGameName.Text = "Game Name";
-            this.chGameName.Width = 350;
+            this.chGameName.Width = 258;
+            // 
+            // chRegion
+            // 
+            this.chRegion.Text = "Region";
+            this.chRegion.Width = 52;
+            // 
+            // chLanguages
+            // 
+            this.chLanguages.Text = "Languages";
+            this.chLanguages.Width = 117;
+            // 
+            // chTitleID
+            // 
+            this.chTitleID.Text = "Title ID";
+            this.chTitleID.Width = 114;
             // 
             // chROMSize
             // 
-            this.chROMSize.Text = "ROM size";
-            this.chROMSize.Width = 87;
+            this.chROMSize.Text = "ROM Size";
+            this.chROMSize.Width = 73;
             // 
             // chUsedSpace
             // 
-            this.chUsedSpace.Text = "Used space";
-            this.chUsedSpace.Width = 87;
+            this.chUsedSpace.Text = "Used Space";
+            this.chUsedSpace.Width = 73;
             // 
-            // chFileName
+            // chFilePath
             // 
-            this.chFileName.Text = "File name";
+            this.chFilePath.Text = "File Path";
+            this.chFilePath.Width = 600;
+            // 
+            // bwUpdateFileList
+            // 
+            this.bwUpdateFileList.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwUpdateFileList_DoWork);
+            this.bwUpdateFileList.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFileList_ProgressChanged);
+            this.bwUpdateFileList.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFileList_RunWorkerCompleted);
             // 
             // Form1
             // 
@@ -777,6 +851,7 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.TABP_TOOLS.ResumeLayout(false);
+            this.TABP_TOOLS.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -844,16 +919,24 @@
         private System.Windows.Forms.ToolStripMenuItem autoRenameFileToolStripMenuItem;
         private System.Windows.Forms.Button B_UpdateNSWDB;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.TextBox R_BatchRenameCustomText;
+        private System.Windows.Forms.RadioButton R_BatchRenameCustom;
         private System.Windows.Forms.RadioButton R_BatchRenameScene;
         private System.Windows.Forms.RadioButton R_BatchRenameDetailed;
         private System.Windows.Forms.RadioButton R_BatchRenameSimple;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ListView LV_Files;
-        private System.Windows.Forms.ColumnHeader chTitleID;
+        private System.Windows.Forms.ColumnHeader chLanguages;
         private System.Windows.Forms.ColumnHeader chGameName;
         private System.Windows.Forms.ColumnHeader chROMSize;
         private System.Windows.Forms.ColumnHeader chUsedSpace;
-        private System.Windows.Forms.ColumnHeader chFileName;
+        private System.Windows.Forms.ColumnHeader chFilePath;
+        private System.ComponentModel.BackgroundWorker bwUpdateFileList;
+        private System.Windows.Forms.ColumnHeader chReleaseID;
+        private System.Windows.Forms.Button B_UpdateCache;
+        private System.Windows.Forms.Label L_Status;
+        private System.Windows.Forms.ColumnHeader chRegion;
+        private System.Windows.Forms.ColumnHeader chTitleID;
     }
 }
 
