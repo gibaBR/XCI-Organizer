@@ -801,12 +801,6 @@ namespace XCI_Organizer {
                 */
                 List<string> renamedFiles = new List<string>(); // Add renamed files to new list so duplicates aren't created
                 List<char> invalidChars = new List<char>(); // Custom list of invalid characters
-                int counter = 0;
-
-                // Uses the same exact files list from UpdateFileList function
-                //UpdateFileList();
-                LV_Files.Items[counter].Selected = true;
-                //lboxFiles.SelectedIndex = counter;
 
                 // Add characters to remove from filename here
                 invalidChars.AddRange(Path.GetInvalidFileNameChars());
@@ -823,7 +817,7 @@ namespace XCI_Organizer {
                      */
                     XmlDocument doc = new XmlDocument();
                     doc.Load("db.xml");
-                    var nodePath = "releases/release[titleid = '" + TB_TID.Text + "']";
+                    var nodePath = "releases/release[titleid = '" + file.TitleID + "']";
                     var node = doc.SelectSingleNode(nodePath);
                     if (node != null) {
                         var id = node["id"].InnerText;
@@ -908,10 +902,6 @@ namespace XCI_Organizer {
                             }
                             catch { }
                         }
-                    }
-
-                    if (++counter < files.Count) {
-                        LV_Files.Items[counter].Selected = true;
                     }
                 }
                 UpdateFileList();
