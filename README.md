@@ -9,24 +9,25 @@ Manage your XCI library easily
 * Displays your whole library
 * Makes managing easy
 
+![main](https://imgur.com/grv1mCK.jpg)
+
 ## Requirements
 * Visual Studio 2017
 * [Hactool](https://github.com/SciresM/hactool/releases)
 * [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/)
 
-![main](https://imgur.com/0sRGSOh.jpg)
-
 ## Latest Changelog
-**v0.0.9 [PRE-RELEASE]**
-* [FEATURE] Custom batch file renaming schemes thanks to RedSparr0w
-* [FEATURE] Basic ascending sorting by ID or Game Name
-* Added more information to list
+**v0.1 FINAL**
+* Game icon properly sized
+* Batch rename now takes less than 5 seconds
+* This is probably the last release for this project (a better version coming soon)
 
 ## Build Instructions
-* Open `XCI Organizer.sln`
-* Build -> Build Solution
-* Add hactool.exe + dependencies + keys.txt to `XCI-Organizer/bin/Debug/` folder
-* Run `XCI-Organizer.exe`
+* Open **XCI Explorer.sln**
+* Change *Debug* to *Release* in the dropdown menu
+* Go to *Build*, then *Build Solution*
+* Extract **hactool.zip** to `XCI-Explorer/bin/Release/` folder
+* Run **XCI-Explorer.exe**
 
 ## Special Thanks
 * klks - CARD2, Hash Validation, critical bug fixes
