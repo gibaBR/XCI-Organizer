@@ -118,7 +118,6 @@ namespace XCI_Organizer {
             }
 
             if (!File.Exists("db.xml")) {
-                MessageBox.Show("NSWDB is missing.\nDownloading database...");
                 updateNSWDB();
             }
 
