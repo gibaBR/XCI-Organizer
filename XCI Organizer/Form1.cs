@@ -84,7 +84,7 @@ namespace XCI_Organizer {
             InitializeComponent();
 
             // Set number of numbers in version number
-            const int NUMBERSINVERSION = 3;
+            const int NUMBERSINVERSION = 2;
 
             B_CopyXCI.Visible = false;
             chUsedSpace.Width = 0;
@@ -95,7 +95,7 @@ namespace XCI_Organizer {
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion + "rev1";
+            this.Text = "XCI Organizer v" + assemblyVersion; ;
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
