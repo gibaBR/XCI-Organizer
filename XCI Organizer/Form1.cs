@@ -95,14 +95,13 @@ namespace XCI_Organizer {
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion; ;
+            this.Text = "XCI Organizer v" + assemblyVersion + "rev1";
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
                 if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     using (var client = new WebClient()) {
-                        string userKeys = Encoding.UTF8.GetString(Convert.FromBase64String("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L3BKTFJpUEZH"));
-                        client.DownloadFile(@userKeys, "keys.txt");
+                        client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L0JQckxYd0JK"), "keys.txt");
                     }
                 }
 
@@ -1037,7 +1036,7 @@ namespace XCI_Organizer {
 
                 cacheDoc.Load("cache.dat");
                 foreach (FileData file in files) {
-                    var cacheNodePath = "xciorganizer/pathpair[path = '" + file.FilePath + "']";
+                    var cacheNodePath = "xciorganizer/pathpair[path = '" + Util.Base64Encode(file.FilePath) + "']";
                     var cacheNode = cacheDoc.SelectSingleNode(cacheNodePath);
                     var titleid = "";
                     var romsize = "";
@@ -1069,19 +1068,19 @@ namespace XCI_Organizer {
                     XElement firstRow = rows.First();
                     firstRow.AddBeforeSelf(
                        new XElement("pathpair",
-                       new XElement("path", file.FilePath),
+                       new XElement("path", Util.Base64Encode(file.FilePath)),
                        new XElement("titleid", data.TitleID),
                        new XElement("romsize", data.ROMSize),
                        new XElement("usedspace", data.UsedSpace)));
 
                     xDocument.Save("cache.dat");
-                    Debug.WriteLine(file.FilePath + " written to cache");
+                    Debug.WriteLine(Util.Base64Encode(file.FilePath) + " written to cache");
                 }
                 else {
                     data.TitleID = file.TitleID;
                     data.ROMSize = file.ROMSize;
                     data.UsedSpace = file.UsedSpace;
-                    Debug.WriteLine(file.FilePath + " read from cache");
+                    Debug.WriteLine(Util.Base64Encode(file.FilePath) + " read from cache");
                 }
 
                 // Fix TitleID
@@ -1222,7 +1221,7 @@ namespace XCI_Organizer {
             for (int i = checkNodes.Count - 1; i >= 0; i--) {
                 bool hasOne = false;
                 foreach (FileData file in files) {
-                    if (checkNodes[i].InnerText.Equals(file.FilePath)) {
+                    if (checkNodes[i].InnerText.Equals(Util.Base64Encode(file.FilePath))) {
                         hasOne = true;
                         break;
                     }
