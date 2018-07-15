@@ -78,7 +78,6 @@
             this.TABP_TOOLS = new System.Windows.Forms.TabPage();
             this.L_Status = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.B_UpdateCache = new System.Windows.Forms.Button();
             this.BT_BatchTrim = new System.Windows.Forms.Button();
             this.B_UpdateNSWDB = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -623,25 +622,14 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.B_UpdateCache);
             this.groupBox3.Controls.Add(this.BT_BatchTrim);
             this.groupBox3.Controls.Add(this.B_UpdateNSWDB);
             this.groupBox3.Location = new System.Drawing.Point(141, 287);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(300, 198);
+            this.groupBox3.Size = new System.Drawing.Size(300, 125);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Miscellaneous";
-            // 
-            // B_UpdateCache
-            // 
-            this.B_UpdateCache.Location = new System.Drawing.Point(71, 148);
-            this.B_UpdateCache.Name = "B_UpdateCache";
-            this.B_UpdateCache.Size = new System.Drawing.Size(153, 23);
-            this.B_UpdateCache.TabIndex = 3;
-            this.B_UpdateCache.Text = "Update Cache";
-            this.B_UpdateCache.UseVisualStyleBackColor = true;
-            this.B_UpdateCache.Click += new System.EventHandler(this.B_UpdateCache_Click);
             // 
             // BT_BatchTrim
             // 
@@ -655,7 +643,7 @@
             // 
             // B_UpdateNSWDB
             // 
-            this.B_UpdateNSWDB.Location = new System.Drawing.Point(71, 94);
+            this.B_UpdateNSWDB.Location = new System.Drawing.Point(71, 80);
             this.B_UpdateNSWDB.Name = "B_UpdateNSWDB";
             this.B_UpdateNSWDB.Size = new System.Drawing.Size(153, 23);
             this.B_UpdateNSWDB.TabIndex = 2;
@@ -933,7 +921,6 @@
         private System.Windows.Forms.ColumnHeader chFilePath;
         private System.ComponentModel.BackgroundWorker bwUpdateFileList;
         private System.Windows.Forms.ColumnHeader chReleaseID;
-        private System.Windows.Forms.Button B_UpdateCache;
         private System.Windows.Forms.Label L_Status;
         private System.Windows.Forms.ColumnHeader chRegion;
         private System.Windows.Forms.ColumnHeader chTitleID;

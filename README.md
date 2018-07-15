@@ -33,6 +33,7 @@ Manage your XCI library easily
 * klks - CARD2, Hash Validation, critical bug fixes
 * gibaBR - XCI Organizer creator, features, refactoring code, bug fixes
 * RedSparr0w - Batch tool improvements
+* LucaFraga - hacbuild
 * StudentBlake - Special contributor to the project
 
 ## Disclaimer

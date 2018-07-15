@@ -6,6 +6,9 @@ using System.Linq;
 //using System.Threading.Tasks;
 using static XCI_Organizer.Form1;
 using XCI_Organizer.XTSSharp;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Diagnostics;
 
 namespace XCI_Organizer {
     internal static class Util {
@@ -90,7 +93,7 @@ namespace XCI_Organizer {
                 foreach (string f in Directory.GetFiles(folder, "*.xci", SearchOption.AllDirectories)) {
                     FileData path = new FileData();
                     path.FilePath = f;
-                    //System.Diagnostics.Debug.WriteLine();
+                    path.Header = GetXCIHeader(f);
                     list.Add(path);
                 }
             }
@@ -151,70 +154,72 @@ namespace XCI_Organizer {
             // Needs to be updated
         }
 
+        /* Switched to MemoryStream and simplified code
+         * No idea if anything broke
+         */
         public static byte[] DecryptNCAHeader(string selectedFile, long offset) {
             byte[] array = new byte[3072];
             if (File.Exists(selectedFile)) {
-                FileStream fileStream = new FileStream(selectedFile, FileMode.Open, FileAccess.Read);
-                fileStream.Position = offset;
-                fileStream.Read(array, 0, 3072);
-                File.WriteAllBytes(selectedFile + ".tmp", array);
-                Xts xts = XtsAes128.Create(Form1.NcaHeaderEncryptionKey1_Prod, Form1.NcaHeaderEncryptionKey2_Prod);
-                using (BinaryReader binaryReader = new BinaryReader(File.OpenRead(selectedFile + ".tmp"))) {
-                    using (XtsStream xtsStream = new XtsStream(binaryReader.BaseStream, xts, 512)) {
+                using (var stream = new MemoryStream()) {
+                    FileStream fs = new FileStream(selectedFile, FileMode.Open, FileAccess.Read);
+                    fs.Position = offset;
+                    fs.Read(array, 0, 3072);
+                    fs.Close();
+
+                    stream.Write(array, 0, array.Length);
+                    stream.Position = 0;
+
+                    Xts xts = XtsAes128.Create(Form1.NcaHeaderEncryptionKey1_Prod, Form1.NcaHeaderEncryptionKey2_Prod);
+                    using (XtsStream xtsStream = new XtsStream(stream, xts, 512)) {
                         xtsStream.Read(array, 0, 3072);
                     }
                 }
-                File.Delete(selectedFile + ".tmp");
-                fileStream.Close();
             }
             return array;
         }
 
-        public static void GetFileSize (ref FileData file) {
-            //Get File Size
-            string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
-            double num_fs = (double)new FileInfo(file.FilePath).Length;
-            int num2_fs = 0;
+        public static void GetFileSize(ref FileData file) {
+            if (CheckXCI(file.FilePath)) {
+                //Get File Size
+                string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
+                double num_fs = (double)new FileInfo(file.FilePath).Length;
+                int num2_fs = 0;
 
-            while (num_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
-                num2_fs++;
-                num_fs /= 1024.0;
-            }
-            file.ROMSize = $"{num_fs:0.##} {array_fs[num2_fs]}";
+                while (num_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
+                    num2_fs++;
+                    num_fs /= 1024.0;
+                }
+                file.ROMSize = $"{num_fs:0.##} {array_fs[num2_fs]}";
 
-            double num3_fs = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
-            num2_fs = 0;
-            while (num3_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
-                num2_fs++;
-                num3_fs /= 1024.0;
+                double num3_fs = (double)(XCI.XCI_Headers[0].CardSize2 * 512 + 512);
+                file.ExactUsedSpace = num3_fs.ToString();
+                num2_fs = 0;
+                while (num3_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
+                    num2_fs++;
+                    num3_fs /= 1024.0;
+                }
+                file.UsedSpace = $"{num3_fs:0.##} {array_fs[num2_fs]}";
             }
-            file.UsedSpace = $"{num3_fs:0.##} {array_fs[num2_fs]}";
         }
 
         public static FileData GetFileData(string filepath) {
             FileData result = new FileData();
-            //Basic Info
-            result.FilePath = filepath;
-            result.FileName = Path.GetFileNameWithoutExtension(filepath);
-            result.FileNameWithExt = Path.GetFileName(filepath);
 
             if (CheckXCI(filepath)) {
+                //Basic Info
+                result.FilePath = filepath;
+                result.FileName = Path.GetFileNameWithoutExtension(filepath);
+                result.FileNameWithExt = Path.GetFileName(filepath);
+
                 //Get File Size
                 GetFileSize(ref result);
 
                 //Load Deep File Info (Probably we should clean it a bit more)
-                string actualHash;
-                byte[] hashBuffer;
-                long offset;
-
                 long[] SecureSize = { };
                 long[] NormalSize = { };
                 long[] SecureOffset = { };
                 long[] NormalOffset = { };
                 long gameNcaOffset = -1;
-                long gameNcaSize = -1;
-                long PFS0Offset = -1;
-                long PFS0Size = -1;
 
                 FileStream fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
                 HFS0.HSF0_Entry[] array = new HFS0.HSF0_Entry[HFS0.HFS0_Headers[0].FileCount];
@@ -237,12 +242,6 @@ namespace XCI_Organizer {
                     array[i].Name = new string(chars.ToArray());
                     chars.Clear();
 
-                    offset = num + array[i].Offset;
-                    hashBuffer = new byte[array[i].HashedRegionSize];
-                    fileStream.Position = offset;
-                    fileStream.Read(hashBuffer, 0, array[i].HashedRegionSize);
-                    actualHash = SHA256Bytes(hashBuffer);
-
                     HFS0.HFS0_Header[] array5 = new HFS0.HFS0_Header[1];
                     fileStream.Position = array[i].Offset + num;
                     fileStream.Read(array3, 0, 16);
@@ -250,10 +249,6 @@ namespace XCI_Organizer {
                     if (array[i].Name == "secure") {
                         SecureSize = new long[array5[0].FileCount];
                         SecureOffset = new long[array5[0].FileCount];
-                    }
-                    if (array[i].Name == "normal") {
-                        NormalSize = new long[array5[0].FileCount];
-                        NormalOffset = new long[array5[0].FileCount];
                     }
                     HFS0.HSF0_Entry[] array6 = new HFS0.HSF0_Entry[array5[0].FileCount];
                     for (int j = 0; j < array5[0].FileCount; j++) {
@@ -265,51 +260,19 @@ namespace XCI_Organizer {
                             SecureSize[j] = array6[j].Size;
                             SecureOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
                         }
-                        if (array[i].Name == "normal") {
-                            NormalSize[j] = array6[j].Size;
-                            NormalOffset[j] = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
-                        }
                         while ((num2 = fileStream.ReadByte()) != 0 && num2 != 0) {
                             chars.Add((char)num2);
                         }
                         array6[j].Name = new string(chars.ToArray());
                         chars.Clear();
-
-                        offset = array[i].Offset + array6[j].Offset + num + 16 + array5[0].StringTableSize + array5[0].FileCount * 64;
-                        hashBuffer = new byte[array6[j].HashedRegionSize];
-                        fileStream.Position = offset;
-                        fileStream.Read(hashBuffer, 0, array6[j].HashedRegionSize);
-                        actualHash = SHA256Bytes(hashBuffer);
                     }
                 }
                 long num3 = -9223372036854775808L;
                 for (int k = 0; k < SecureSize.Length; k++) {
                     if (SecureSize[k] > num3) {
-                        gameNcaSize = SecureSize[k];
                         gameNcaOffset = SecureOffset[k];
                         num3 = SecureSize[k];
                     }
-                }
-                PFS0Offset = gameNcaOffset + 32768;
-                fileStream.Position = PFS0Offset;
-                fileStream.Read(array3, 0, 16);
-                PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array3);
-                PFS0.PFS0_Entry[] array8;
-                array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
-                for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++) {
-                    fileStream.Position = PFS0Offset + 16 + 24 * m;
-                    fileStream.Read(array4, 0, 24);
-                    array8[m] = new PFS0.PFS0_Entry(array4);
-                    PFS0Size += array8[m].Size;
-                }
-                for (int n = 0; n < PFS0.PFS0_Headers[0].FileCount; n++) {
-                    fileStream.Position = PFS0Offset + 16 + 24 * PFS0.PFS0_Headers[0].FileCount + array8[n].Name_ptr;
-                    int num4;
-                    while ((num4 = fileStream.ReadByte()) != 0 && num4 != 0) {
-                        chars.Add((char)num4);
-                    }
-                    array8[n].Name = new string(chars.ToArray());
-                    chars.Clear();
                 }
                 fileStream.Close();
 
@@ -327,6 +290,32 @@ namespace XCI_Organizer {
         public static string Base64Decode(string base64EncodedData) {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        public static T FromBinaryReader<T>(BinaryReader reader) {
+
+            // Read in a byte array
+            byte[] bytes = new byte[Marshal.SizeOf(typeof(T))];
+            reader.Read(bytes, 0, Marshal.SizeOf(typeof(T)));
+
+            // Pin the managed memory while, copy it out the data, then unpin it
+            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            T theStructure = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+            handle.Free();
+
+            return theStructure;
+        }
+
+        public static xci_header GetXCIHeader(string inFile) {
+            // TODO Check magic
+            FileStream fs = new FileStream(inFile, FileMode.Open, FileAccess.Read);
+            BinaryReader br = new BinaryReader(fs);
+            xci_header header = FromBinaryReader<xci_header>(br);
+
+
+            br.Close();
+            fs.Close();
+            return header;
         }
     }
 }

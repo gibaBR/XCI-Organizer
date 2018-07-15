@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,78 @@ using XCI_Organizer.XTSSharp;
 
 namespace XCI_Organizer {
     public partial class Form1 : Form {
+        // Borrowed from hacbuild
+        public const int XCI_SIGNATURE_SIZE = 0x100;              // RSA Signature at the start of a xci file
+        public const int XCI_IV_SIZE = 0x10;                      // Length of the AES-128-CBC IV for GameInfo Encryption/Decryption
+        public const int XCI_HASH_SIZE = 0x20;                    // Length of SHA256 hashes
+        public const int XCI_GAMECARD_INFO_LENGTH = 0x70;         // Length of GameCard Info
+
+        // This is prone to failure if the cartridge has a value that it's not in this enum.
+        // TODO There should be some code to handle this
+        public enum CartridgeType : byte {
+            CARTSIZE_1GB = 0xFA,
+            CARTSIZE_2GB = 0xF8,
+            CARTSIZE_4GB = 0xF0,
+            CARTSIZE_8GB = 0xE0,
+            CARTSIZE_16GB = 0xE1,
+            CARTSIZE_32GB = 0xE2
+        }
+
+        // XCI Header 
+        public struct xci_header {
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = XCI_SIGNATURE_SIZE)]
+            public byte[] Signature; // This is ignored, so we can generate a random one or ignore it [v]
+            public UInt32 Magic; // HEAD  [v]
+            public UInt32 SecureOffset; // /secure partition HFS0 <====== [v]
+            public UInt32 BackupAreaAddress; // backup start index [v]
+            public byte KEK; // Title KEK Index [?] <== check how it varies from game to game
+            public CartridgeType CartType; // [?] Proper calculation is needed
+            public byte HeaderVersion; // [v]
+            public byte Flag; // [v] This seems static
+            public UInt64 PackageID; // [x]
+            public UInt64 CardSize;  // [?] <== compare with other games
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = XCI_IV_SIZE)]
+            public byte[] GamecardIV; // [?] <== What's the key?
+            public UInt64 HFS0Offset;  // [v] Pointer to /root.hfs0 start
+            public UInt64 HFS0HeaderSize; // [v] HFS0 Header size
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = XCI_HASH_SIZE)]
+            public byte[] HFS0HeaderHash; // [v] HFS0 Header hash
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = XCI_HASH_SIZE)]
+            public byte[] InitialDataHash; // [x]
+            public UInt32 SecureModeFlag; // [v]
+            public UInt32 TitleKeyFlag; // [v]
+            public UInt32 KeyFlag; // [v]
+            public UInt32 NormalAreaEndAddress; // [v] /normal.hfs0 end
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = XCI_GAMECARD_INFO_LENGTH)]
+            public byte[] GamecardInfo; // [x] Gamecard info
+
+            public override string ToString() {
+                StringBuilder sb = new StringBuilder();
+
+                sb.AppendFormat("Signature: {0}\n", BitConverter.ToString(Signature));
+                sb.AppendFormat("Magic: {0}\n", Encoding.ASCII.GetString(BitConverter.GetBytes(Magic)));
+                sb.AppendFormat("SecureOffset: 0x{0:X} * 0x200\n", SecureOffset);
+                sb.AppendFormat("BackupOffset: 0x{0:X} * 0x200\n", BackupAreaAddress);
+                sb.AppendFormat("KEK Index: 0x{0:X}\n", KEK);
+                sb.AppendFormat("CartType: {0}\n", CartType.ToString());
+                sb.AppendFormat("HeaderVersion: 0x{0:X}\n", HeaderVersion);
+                sb.AppendFormat("Flag: 0x{0:X}\n", Flag);
+                sb.AppendFormat("PackageID: {0}\n", BitConverter.ToString(BitConverter.GetBytes(PackageID)));
+                sb.AppendFormat("CardSize: 0x{0} * 0x200\n", CardSize);
+                sb.AppendFormat("IV (raw-data): {0}\n", BitConverter.ToString(GamecardIV));
+                sb.AppendFormat("HFS0Offset: 0x{0:X}\n", HFS0HeaderSize);
+                sb.AppendFormat("HFS0HeaderSize: 0x{0:X}\n", HFS0HeaderSize);
+                sb.AppendFormat("HFS0HeaderHash: {0}\n", BitConverter.ToString(HFS0HeaderHash));
+                sb.AppendFormat("InitialDataHash: {0}\n", BitConverter.ToString(InitialDataHash));
+                sb.AppendFormat("SecureModeFlag: 0x{0:X}\n", SecureModeFlag);
+                sb.AppendFormat("TitleKeyFlag: 0x{0:X}\n", TitleKeyFlag);
+                sb.AppendFormat("KeyFlag: 0x{0:X}\n", KeyFlag);
+                sb.AppendFormat("NormalAreaEndAddress: 0x{0:X}\n", NormalAreaEndAddress);
+                sb.AppendFormat("GamecardInfo [Encrypted]: {0}\n", BitConverter.ToString(GamecardInfo));
+                return sb.ToString();
+            }
+        }
+
         private string[] Language = new string[16]
         {
             "American English",
@@ -78,24 +151,22 @@ namespace XCI_Organizer {
             public string ReleaseID { get; set; } = "";
             public string Region { get; set; } = "";
             public string Languages { get; set; } = "";
+            public xci_header Header { get; set; }
+            public string ExactUsedSpace { get; set; } = "";
         }
 
         public Form1() {
             InitializeComponent();
 
             // Set number of numbers in version number
-            const int NUMBERSINVERSION = 2;
+            const int NUMBERSINVERSION = 3;
 
             B_CopyXCI.Visible = false;
-            chUsedSpace.Width = 0;
-
-            // Default sorting when program starts
-            //sortByThis = chReleaseID.Index;
 
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion + "rev1";
+            this.Text = "XCI Organizer v" + assemblyVersion;
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
@@ -946,10 +1017,6 @@ namespace XCI_Organizer {
                         //lboxFiles.SelectedIndex = counter;
                     }
                 }
-                // Info will be outdated if something is trimmed :/ Need better solution
-                if (File.Exists("cache.dat")) {
-                    File.Delete("cache.dat");
-                }
                 UpdateFileList();
                 buttonsEnabled(true);
                 L_Status.Text = "Status: Batch trimming done!";
@@ -1024,33 +1091,10 @@ namespace XCI_Organizer {
                 settings.IndentChars = ("    ");
                 using (XmlWriter writer = XmlWriter.Create("cache.dat", settings)) {
                     // Setup file
-                    writer.WriteStartElement("xciorganizer");
-                    writer.WriteStartElement("pathpair");
+                    writer.WriteStartElement("XCIOrganizer");
+                    writer.WriteStartElement("universalpair");
                     writer.WriteEndElement();
                     writer.Flush();
-                }
-            }
-            else {
-                // Check if necessary to run every update
-                removeOldCacheEntries();
-
-                cacheDoc.Load("cache.dat");
-                foreach (FileData file in files) {
-                    var cacheNodePath = "xciorganizer/pathpair[path = '" + Util.Base64Encode(file.FilePath) + "']";
-                    var cacheNode = cacheDoc.SelectSingleNode(cacheNodePath);
-                    var titleid = "";
-                    var romsize = "";
-                    var usedspace = "";
-
-                    if (cacheNode != null) {
-                        titleid = cacheNode["titleid"].InnerText;
-                        romsize = cacheNode["romsize"].InnerText;
-                        usedspace = cacheNode["usedspace"].InnerText;
-                    }
-
-                    file.TitleID = titleid;
-                    file.ROMSize = romsize;
-                    file.UsedSpace = usedspace;
                 }
             }
 
@@ -1060,34 +1104,53 @@ namespace XCI_Organizer {
 
                 cacheDoc.Load("cache.dat");
 
+                // Search for the proper packageid from file
+                var cacheNodePath = "XCIOrganizer/universalpair[packageid = '" + file.Header.PackageID + "']";
+                var cacheNode = cacheDoc.SelectSingleNode(cacheNodePath);
+                var titleid = "";
+
+                if (cacheNode != null) {
+                    titleid = cacheNode["titleid"].InnerText;
+                }
+
+                file.TitleID = titleid;
+
                 if (file.TitleID == "") {
                     data = Util.GetFileData(file.FilePath);
                     XDocument xDocument = XDocument.Load("cache.dat");
-                    XElement root = xDocument.Element("xciorganizer");
-                    IEnumerable<XElement> rows = root.Descendants("pathpair");
+                    XElement root = xDocument.Element("XCIOrganizer");
+                    IEnumerable<XElement> rows = root.Descendants("universalpair");
                     XElement firstRow = rows.First();
                     firstRow.AddBeforeSelf(
-                       new XElement("pathpair",
-                       new XElement("path", Util.Base64Encode(file.FilePath)),
-                       new XElement("titleid", data.TitleID),
-                       new XElement("romsize", data.ROMSize),
-                       new XElement("usedspace", data.UsedSpace)));
+                       new XElement("universalpair",
+                       new XElement("packageid", file.Header.PackageID.ToString()),
+                       new XElement("titleid", data.TitleID)));
 
                     xDocument.Save("cache.dat");
-                    Debug.WriteLine(Util.Base64Encode(file.FilePath) + " written to cache");
+                    Debug.WriteLine(file.Header.PackageID.ToString() + " written to cache");
                 }
                 else {
                     data.TitleID = file.TitleID;
-                    data.ROMSize = file.ROMSize;
-                    data.UsedSpace = file.UsedSpace;
-                    Debug.WriteLine(Util.Base64Encode(file.FilePath) + " read from cache");
+                    Debug.WriteLine(file.Header.PackageID.ToString() + " read from cache");
                 }
 
                 // Fix TitleID
                 data.TitleID = "0" + data.TitleID;
 
-                var nodePath = "releases/release[titleid = '" + data.TitleID + "']";
+                // Get correct filesizes every time
+                data.FilePath = file.FilePath;
+                Util.GetFileSize(ref data);
+
+                // Makes sure the revision is on point
+                var nodePath = "releases/release[titleid = '" + data.TitleID + "' and trimmedsize = '" + data.ExactUsedSpace + "']";
                 var node = doc.SelectSingleNode(nodePath);
+
+                // If nothing is found, use just titleid
+                if (node == null) {
+                    nodePath = "releases/release[titleid = '" + data.TitleID + "']";
+                    node = doc.SelectSingleNode(nodePath);
+                }
+
                 var releaseid = "";
                 var region = "";
                 var languages = "";
@@ -1204,40 +1267,12 @@ namespace XCI_Organizer {
 
                 if (item.SubItems[chROMSize.Index].Text != item.SubItems[chUsedSpace.Index].Text) {
                     item.UseItemStyleForSubItems = false;
-                    item.SubItems[chROMSize.Index].BackColor = Color.LightPink;
+                    item.SubItems[chROMSize.Index].BackColor = Color.PaleGreen;
                 }
 
                 LV_Files.Items.Add(item);
                 btnBaseFolder.Text = e.ProgressPercentage.ToString() + "% Added";
             }
-        }
-
-        private void removeOldCacheEntries() {
-            // This gets rid of old entries (not sure how expensive it is to run after every UpdateFileList)
-            XmlDocument cacheDoc = new XmlDocument();
-            cacheDoc.Load("cache.dat");
-            XmlNodeList checkNodes = cacheDoc.SelectNodes("xciorganizer/pathpair/path");
-            XmlNodeList removeNodes = cacheDoc.SelectNodes("xciorganizer/pathpair");
-            for (int i = checkNodes.Count - 1; i >= 0; i--) {
-                bool hasOne = false;
-                foreach (FileData file in files) {
-                    if (checkNodes[i].InnerText.Equals(Util.Base64Encode(file.FilePath))) {
-                        hasOne = true;
-                        break;
-                    }
-                }
-                if (!hasOne) {
-                    Debug.Write(checkNodes[i].InnerText + " removed from cache\n");
-                    removeNodes[i].ParentNode.RemoveChild(removeNodes[i]);
-                }
-            }
-            cacheDoc.Save("cache.dat");
-        }
-
-        private void B_UpdateCache_Click(object sender, EventArgs e) {
-            L_Status.Text = "Status: Removing old cache entries...";
-            removeOldCacheEntries();
-            L_Status.Text = "Status: Cache updated!";
         }
 
         private void LV_Files_ColumnClick(object sender, ColumnClickEventArgs e) {
@@ -1253,7 +1288,7 @@ namespace XCI_Organizer {
                 sortChanged = true;
             }
 
-            if(sortChanged) {
+            if (sortChanged) {
                 ini.IniWriteValue("Config", "DefaultSort", sortByThis.ToString());
                 UpdateFileList();
             }
