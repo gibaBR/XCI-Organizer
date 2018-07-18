@@ -1,11 +1,12 @@
 # Changelog
-**v0.1.2 EXPERIMENTAL**
+**v0.1.2r1 EXPERIMENTAL**
 * Support for NSWDB revisions
 * Cache is now universal and can be shared between users
 * Trimming no longer deletes cache
 * Reworked some code
 * A lot of under the hood changes, something may be broken
 * This release may be slightly slower because file sizes and other info is retrieved every refresh (needs testing with large library)
+* Revert hash validation for NCA due to bug with newer games
 
 v0.1r1 FINAL
 * Game icon properly sized
