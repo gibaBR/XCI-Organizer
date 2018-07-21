@@ -141,6 +141,7 @@ namespace XCI_Organizer {
         private long selectedSize;
 
         public class FileData {
+            public xci_header Header { get; set; }
             public string FilePath { get; set; } = "";
             public string FileName { get; set; } = "";
             public string FileNameWithExt { get; set; } = "";
@@ -151,8 +152,8 @@ namespace XCI_Organizer {
             public string ReleaseID { get; set; } = "";
             public string Region { get; set; } = "";
             public string Languages { get; set; } = "";
-            public xci_header Header { get; set; }
             public string ExactUsedSpace { get; set; } = "";
+            public string isTrimmed { get; set; } = "No";
         }
 
         public Form1() {
@@ -788,7 +789,9 @@ namespace XCI_Organizer {
 
         private void B_ViewCert_Click(object sender, EventArgs e) {
             if (Util.checkFile(selectedFile)) {
-                new CertForm(this).Show();
+                CertForm cert = new CertForm(this);
+                cert.Text = "Cert Data - " + selectedFile;
+                cert.Show();
             }
             else {
                 MessageBox.Show("File not found");
@@ -1308,6 +1311,7 @@ namespace XCI_Organizer {
                 file.ReleaseID = data.ReleaseID;
                 file.Region = data.Region;
                 file.Languages = data.Languages;
+                file.isTrimmed = data.isTrimmed;
                 //Debug.WriteLine(file.ReleaseID);
 
                 percent = (int)(++counter / (float)files.Count * 100);
@@ -1330,8 +1334,7 @@ namespace XCI_Organizer {
                 item.SubItems.Add(file.Region);
                 item.SubItems.Add(file.Languages);
                 item.SubItems.Add(file.TitleID);
-                item.SubItems.Add(file.ROMSize);
-                item.SubItems.Add(file.UsedSpace);
+                item.SubItems.Add(file.isTrimmed);
                 item.SubItems.Add(file.FilePath);
 
                 percent = (int)(++counter / (float)files.Count * 100);
@@ -1362,17 +1365,15 @@ namespace XCI_Organizer {
         }
 
         private void bwUpdateFileList_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            ListViewItem item = new ListViewItem();
+            ListViewItem item = (ListViewItem)e.UserState;
 
-            if ((ListViewItem)e.UserState == null) {
+            if (item == null) {
                 btnBaseFolder.Text = e.ProgressPercentage.ToString() + "% Processed";
             }
             else {
-                item = (ListViewItem)e.UserState;
-
-                if (item.SubItems[chROMSize.Index].Text != item.SubItems[chUsedSpace.Index].Text) {
+                if (item.SubItems[chTrimmed.Index].Text == "No") {
                     item.UseItemStyleForSubItems = false;
-                    item.SubItems[chROMSize.Index].BackColor = Color.PaleGreen;
+                    item.SubItems[chTrimmed.Index].BackColor = Color.PaleGreen;
                 }
 
                 LV_Files.Items.Add(item);

@@ -95,8 +95,7 @@
             this.chRegion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chLanguages = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chTitleID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chROMSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chUsedSpace = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chTrimmed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chFilePath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.bwUpdateFileList = new System.ComponentModel.BackgroundWorker();
             this.contextMenuStrip1.SuspendLayout();
@@ -637,7 +636,7 @@
             this.BT_BatchTrim.Name = "BT_BatchTrim";
             this.BT_BatchTrim.Size = new System.Drawing.Size(153, 23);
             this.BT_BatchTrim.TabIndex = 1;
-            this.BT_BatchTrim.Text = "[BETA] Batch Trim XCI";
+            this.BT_BatchTrim.Text = "Batch Trim XCI";
             this.BT_BatchTrim.UseVisualStyleBackColor = true;
             this.BT_BatchTrim.Click += new System.EventHandler(this.BT_BatchTrim_Click);
             // 
@@ -712,7 +711,7 @@
             this.BT_BatchRename.Name = "BT_BatchRename";
             this.BT_BatchRename.Size = new System.Drawing.Size(153, 23);
             this.BT_BatchRename.TabIndex = 0;
-            this.BT_BatchRename.Text = "[BETA] Batch Rename XCI";
+            this.BT_BatchRename.Text = "Batch Rename XCI";
             this.BT_BatchRename.UseVisualStyleBackColor = true;
             this.BT_BatchRename.Click += new System.EventHandler(this.BT_BatchRename_Click);
             // 
@@ -752,8 +751,7 @@
             this.chRegion,
             this.chLanguages,
             this.chTitleID,
-            this.chROMSize,
-            this.chUsedSpace,
+            this.chTrimmed,
             this.chFilePath});
             this.LV_Files.ContextMenuStrip = this.contextMenuStrip1;
             this.LV_Files.FullRowSelect = true;
@@ -776,7 +774,7 @@
             // chGameName
             // 
             this.chGameName.Text = "Game Name";
-            this.chGameName.Width = 258;
+            this.chGameName.Width = 278;
             // 
             // chRegion
             // 
@@ -793,15 +791,10 @@
             this.chTitleID.Text = "Title ID";
             this.chTitleID.Width = 114;
             // 
-            // chROMSize
+            // chTrimmed
             // 
-            this.chROMSize.Text = "ROM Size";
-            this.chROMSize.Width = 73;
-            // 
-            // chUsedSpace
-            // 
-            this.chUsedSpace.Text = "Used Space";
-            this.chUsedSpace.Width = 73;
+            this.chTrimmed.Text = "Trimmed";
+            this.chTrimmed.Width = 53;
             // 
             // chFilePath
             // 
@@ -916,8 +909,7 @@
         private System.Windows.Forms.ListView LV_Files;
         private System.Windows.Forms.ColumnHeader chLanguages;
         private System.Windows.Forms.ColumnHeader chGameName;
-        private System.Windows.Forms.ColumnHeader chROMSize;
-        private System.Windows.Forms.ColumnHeader chUsedSpace;
+        private System.Windows.Forms.ColumnHeader chTrimmed;
         private System.Windows.Forms.ColumnHeader chFilePath;
         private System.ComponentModel.BackgroundWorker bwUpdateFileList;
         private System.Windows.Forms.ColumnHeader chReleaseID;

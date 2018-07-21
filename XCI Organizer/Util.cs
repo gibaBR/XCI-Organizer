@@ -199,6 +199,10 @@ namespace XCI_Organizer {
                     num3_fs /= 1024.0;
                 }
                 file.UsedSpace = $"{num3_fs:0.##} {array_fs[num2_fs]}";
+
+                if (num_fs == num3_fs) {
+                    file.isTrimmed = "Yes";
+                }
             }
         }
 
