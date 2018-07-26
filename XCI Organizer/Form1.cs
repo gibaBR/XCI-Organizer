@@ -11,14 +11,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using XCI_Explorer;
 using XCI_Organizer.Helpers;
-using XCI_Organizer.XTSSharp;
-using System.IO.Compression;
 
 namespace XCI_Organizer {
     public partial class Form1 : Form {
@@ -154,8 +151,8 @@ namespace XCI_Organizer {
             public string Region { get; set; } = "";
             public string Languages { get; set; } = "";
             public string ExactUsedSpace { get; set; } = "";
-            public string isTrimmed { get; set; } = "";
-            public bool isNSP { get; set; } = false;
+            public string Trimmed { get; set; } = "";
+            public bool IsNSP { get; set; } = false;
         }
 
         public Form1() {
@@ -197,17 +194,6 @@ namespace XCI_Organizer {
 
             if (!File.Exists("db.xml")) {
                 updateNSWDB();
-            }
-
-            if (!Directory.Exists("icons")) {
-                Directory.CreateDirectory("icons");
-
-                if (MessageBox.Show("Icons for eShop games can be downloaded.\nWould you like to download them now?\n\nIt will be downloaded and unzipped automatically in the background.", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
-                    if (!bwDownloadNSPIcons.IsBusy) {
-                        // Start the asynchronous operation.
-                        bwDownloadNSPIcons.RunWorkerAsync();
-                    }
-                }
             }
 
             getKey();
@@ -287,18 +273,23 @@ namespace XCI_Organizer {
         }
 
         private void ProcessFile() {
-            if (Util.CheckXCI(selectedFile)) {
+            if (files[FindFileIndex(selectedFile)].IsNSP) {
+                LoadNSP(false);
+            }
+            else if (Util.CheckXCI(selectedFile)) {
                 LoadXCI();
             }
             else {
-                LoadNSP(false);
+                MessageBox.Show("Unsupported file");
             }
         }
 
         private void _TrimXCI() {
-            FileStream fileStream = new FileStream(selectedFile, FileMode.Open, FileAccess.Write);
-            fileStream.SetLength((long)UsedSize);
-            fileStream.Close();
+            if (!files[FindFileIndex(selectedFile)].IsNSP) {
+                FileStream fileStream = new FileStream(selectedFile, FileMode.Open, FileAccess.Write);
+                fileStream.SetLength((long)UsedSize);
+                fileStream.Close();
+            }
         }
 
         private void TrimXCI() {
@@ -379,41 +370,34 @@ namespace XCI_Organizer {
         }
 
         private void LoadNSP(bool isBackground) {
-            string titleid;
-
-            // Very messy way to extract titleid from NSP
-            // Rework with NXTools code
-            Process process = new Process();
-            process.StartInfo = new ProcessStartInfo {
-                //WindowStyle = ProcessWindowStyle.Hidden,
-                CreateNoWindow = true,
-                FileName = "nstool.exe",
-                Arguments = "--listfs \"" + selectedFile + "\"",
-                RedirectStandardOutput = true,
-                UseShellExecute = false
-            };
-            process.Start();
-            while ((titleid = process.StandardOutput.ReadLine()) != null) {
-                if (titleid.Contains("0100")) {
-                    titleid = titleid.Trim().Substring(0, 16).ToUpper();
-                    break;
-                }
-            }
-            process.WaitForExit();
-
             if (!isBackground) {
-                string icon = "icons\\" + titleid.ToLower() + ".jpg";
-                TB_Name.Text = Path.GetFileNameWithoutExtension(selectedFile);
-                TB_TID.Text = titleid;
-                if (File.Exists(icon)) {
-                    PB_GameIcon.BackgroundImage = new Bitmap(Util.ConvertToBitmap(icon));
-                }
-
+                LoadNSPMetadata(selectedFile);
             }
+            else {
+                string titleid;
 
-            files[findFileData(selectedFile)].TitleID = titleid;
+                // Very messy way to extract titleid from NSP
+                // Rework with NXTools code
+                Process process = new Process();
+                process.StartInfo = new ProcessStartInfo {
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    FileName = "nstool.exe",
+                    Arguments = "--listfs \"" + selectedFile + "\""
 
-            //Debug.WriteLine(files[findFileData(selectedFile)].TitleID);
+                };
+                process.Start();
+                while ((titleid = process.StandardOutput.ReadLine()) != null) {
+                    if (titleid.Contains("0100")) {
+                        titleid = titleid.Trim().Substring(0, 16).ToUpper();
+                        break;
+                    }
+                }
+                process.WaitForExit();
+                process.Close();
+                files[FindFileIndex(selectedFile)].TitleID = titleid;
+            }
         }
 
         private void LoadGameInfos() {
@@ -498,6 +482,154 @@ namespace XCI_Organizer {
                 TB_Dev.Text = Mkey + " not found";
                 TB_Name.Text = Mkey + " not found";
             }
+        }
+
+        // Thanks Giba for figureing this out!
+        // Needs improvement, but overall gets the info needed
+        public void LoadNSPMetadata(string file) {
+            CB_RegionName.Items.Clear();
+            CB_RegionName.Enabled = true;
+            TB_Name.Text = "";
+            TB_Dev.Text = "";
+            PB_GameIcon.BackgroundImage = null;
+            Array.Clear(Icons, 0, Icons.Length);
+            TV_Partitions.Nodes.Clear();
+            FileInfo fi = new FileInfo(file);
+            //Get File Size
+            string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
+            double num_fs = (double)fi.Length;
+            int num2_fs = 0;
+            TB_ROMExactSize.Text = "(" + num_fs.ToString() + " bytes)";
+            TB_ExactUsedSpace.Text = TB_ROMExactSize.Text;
+
+            while (num_fs >= 1024.0 && num2_fs < array_fs.Length - 1) {
+                num2_fs++;
+                num_fs /= 1024.0;
+            }
+            TB_ROMSize.Text = $"{num_fs:0.##} {array_fs[num2_fs]}";
+            TB_UsedSpace.Text = TB_ROMSize.Text;
+
+            Process process = new Process();
+            try {
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "hactool.exe",
+                    Arguments = "-t pfs0 " + "\"" + file + "\"" + " --outdir=tmp"
+                };
+                process.Start();
+                process.WaitForExit();
+                process.Close();
+
+                List<string> listXML = new List<string>();
+                if (!Directory.Exists("tmp")) {
+                }
+                try {
+                    foreach (string f in Directory.GetFiles("tmp", "*.xml")) {
+                        listXML.Add(f);
+                        break;
+                    }
+                }
+                catch { }
+
+                XDocument xml = XDocument.Load(listXML.First());
+                TB_TID.Text = xml.Element("ContentMeta").Element("Id").Value.Remove(1, 2).ToUpper();
+                string ncaTarget = "";
+                foreach (XElement xe in xml.Descendants("Content")) {
+                    if (xe.Element("Type").Value != "Control") {
+                        continue;
+                    }
+                    ncaTarget = xe.Element("Id").Value + ".nca";
+                    break;
+                }
+                process = new Process();
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "hactool.exe",
+                    Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget
+                };
+                process.Start();
+                process.WaitForExit();
+                process.Close();
+                byte[] flux = new byte[200];
+
+                byte[] source = File.ReadAllBytes("tmp\\control.nacp");
+                NACP.NACP_Datas[0] = new NACP.NACP_Data(source.Skip(0x3000).Take(0x1000).ToArray());
+
+                //data.Region_Icon = new Dictionary<string, string>();
+                //data.Languagues = new List<string>();
+
+                for (int i = 0; i < NACP.NACP_Strings.Length; i++) {
+                    NACP.NACP_Strings[i] = new NACP.NACP_String(source.Skip(i * 0x300).Take(0x300).ToArray());
+                    if (NACP.NACP_Strings[i].Check != 0) {
+                        CB_RegionName.Items.Add(Language[i]);
+                        //string icon_filename = "data\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                        string icon_filename = "tmp\\icon_" + Language[i].Replace(" ", "") + ".dat";
+                        if (File.Exists(icon_filename)) {
+                            using (Bitmap original = new Bitmap(icon_filename)) {
+                                Icons[i] = new Bitmap(original);
+                                PB_GameIcon.BackgroundImage = Icons[i];
+                            }
+                        }
+                    }
+                }
+                TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", ""); ;
+                TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", ""); ;
+                if (TB_ProdCode.Text == "") {
+                    TB_ProdCode.Text = "No Prod. ID";
+                }
+
+                for (int z = 0; z < NACP.NACP_Strings.Length; z++) {
+                    if (NACP.NACP_Strings[z].GameName.Replace("\0", "") != "") {
+                        TB_Name.Text = NACP.NACP_Strings[z].GameName.Replace("\0", "");
+                        break;
+                    }
+                }
+                for (int z = 0; z < NACP.NACP_Strings.Length; z++) {
+                    if (NACP.NACP_Strings[z].GameAuthor.Replace("\0", "") != "") {
+                        TB_Dev.Text = NACP.NACP_Strings[z].GameAuthor.Replace("\0", "");
+                        break;
+                    }
+                }
+
+                //Lets get SDK Version, Distribution Type and Masterkey revision
+                //This is far from the best aproach, but its what we have for now
+                process = new Process();
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "hactool.exe",
+                    Arguments = "-k keys.txt tmp/" + ncaTarget,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                process.Start();
+                StreamReader sr = process.StandardOutput;
+
+                while (sr.Peek() >= 0) {
+                    string str;
+                    string[] strArray;
+                    str = sr.ReadLine();
+                    strArray = str.Split(':');
+                    if (strArray[0] == "SDK Version") {
+                        TB_SDKVer.Text = strArray[1].Trim();
+                    }
+                    /*else if (strArray[0] == "Distribution type") {
+                        data.DistributionType = strArray[1].Trim();
+                    }*/
+                    else if (strArray[0] == "Master Key Revision") {
+                        TB_MKeyRev.Text = "MasterKey" + strArray[1].Trim();
+                        break;
+                    }
+                }
+                process.WaitForExit();
+                process.Close();
+            }
+            catch { }
+            finally {
+                Directory.Delete("tmp", true);
+            }
+            TB_Capacity.Text = "eShop";
+            CB_RegionName.SelectedIndex = 0;
         }
 
         private void LoadSettings() {
@@ -754,7 +886,14 @@ namespace XCI_Organizer {
             fileStream.Position = PFS0Offset;
             fileStream.Read(array3, 0, 16);
             PFS0.PFS0_Headers[0] = new PFS0.PFS0_Header(array3);
-            PFS0.PFS0_Entry[] array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
+            PFS0.PFS0_Entry[] array8;
+            try {
+                array8 = new PFS0.PFS0_Entry[PFS0.PFS0_Headers[0].FileCount];
+            }
+            catch (Exception ex) {
+                array8 = new PFS0.PFS0_Entry[0];
+                Debug.WriteLine("Partitions Error: " + ex.Message);
+            }
             for (int m = 0; m < PFS0.PFS0_Headers[0].FileCount; m++) {
                 fileStream.Position = PFS0Offset + 16 + 24 * m;
                 fileStream.Read(array4, 0, 24);
@@ -1055,9 +1194,6 @@ namespace XCI_Organizer {
                     string checkedName;
                     string newPath;
 
-                    if (file.isNSP) {
-                        continue;
-                    }
                     /* Check NSWDB for filenames first
                      * If no entry, use custom naming scheme
                      */
@@ -1129,8 +1265,18 @@ namespace XCI_Organizer {
                     newPath = Path.GetDirectoryName(file.FilePath) + "\\" + checkedName;
 
                     if (!renamedFiles.Contains(checkedName) && File.Exists(file.FilePath) && !File.Exists(newPath)) {
-                        System.IO.File.Move(file.FilePath, (newPath + ".xci"));
-                        renamedFiles.Add(checkedName);
+                        try {
+                            if (file.IsNSP) {
+                                System.IO.File.Move(file.FilePath, (newPath + ".nsp"));
+                            }
+                            else {
+                                System.IO.File.Move(file.FilePath, (newPath + ".xci"));
+                            }
+                            renamedFiles.Add(checkedName);
+                        }
+                        catch (Exception ex) {
+                            Debug.WriteLine("Error: " + ex.Message);
+                        }
                     }
                     else {
                         /* This will rename duplicate XCI and append "_DATESCHEME"
@@ -1175,7 +1321,7 @@ namespace XCI_Organizer {
                 LV_Files.Items[counter].Selected = true;
 
                 foreach (FileData file in files) {
-                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file.FilePath) && !file.isNSP) {
+                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file.FilePath) && !file.IsNSP) {
                         _TrimXCI();
                     }
 
@@ -1197,7 +1343,7 @@ namespace XCI_Organizer {
 
         private void PB_GameIcon_Click(object sender, EventArgs e) {
             // This needs a lot more work and probably will depend on code from the renamer once it's finished
-            if (!files[findFileData(selectedFile)].isNSP && MessageBox.Show("Are you sure you want to save the current icon image?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+            if (MessageBox.Show("Are you sure you want to save the current icon image?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                 int num = Array.FindIndex(Language, (string element) => element.StartsWith(CB_RegionName.Text, StringComparison.Ordinal));
                 string iconFile = "icon_" + DateTime.Now.ToString("yyyyMMddHHmmssffffff") + ".jpg";
 
@@ -1229,7 +1375,7 @@ namespace XCI_Organizer {
                     ProcessFile();
                 }
 
-                if (Path.GetExtension(selectedFile).ToLower() == ".nsp") {
+                if (files[FindFileIndex(selectedFile)].IsNSP) {
                     buttonsEnabledCertTrim(false);
                 }
                 else {
@@ -1294,7 +1440,7 @@ namespace XCI_Organizer {
 
                 file.TitleID = titleid;
 
-                if (file.TitleID == "" && !file.isNSP) {
+                if (file.TitleID == "" && !file.IsNSP) {
                     data = Util.GetFileData(file.FilePath);
                     XDocument xDocument = XDocument.Load("cache.dat");
                     XElement root = xDocument.Element("XCIOrganizer");
@@ -1379,11 +1525,11 @@ namespace XCI_Organizer {
                 file.ReleaseID = data.ReleaseID;
                 file.Region = data.Region;
                 file.Languages = data.Languages;
-                file.isTrimmed = data.isTrimmed;
+                file.Trimmed = data.Trimmed;
                 //Debug.WriteLine(file.ReleaseID);
 
-                if (file.isNSP) {
-                    file.isTrimmed = "???";
+                if (file.IsNSP) {
+                    file.Trimmed = "eShop";
                     selectedFile = file.FilePath;
                     LoadNSP(true);
                     Debug.WriteLine(file.TitleID + " NSP loaded");
@@ -1409,7 +1555,7 @@ namespace XCI_Organizer {
                 item.SubItems.Add(file.Region);
                 item.SubItems.Add(file.Languages);
                 item.SubItems.Add(file.TitleID);
-                item.SubItems.Add(file.isTrimmed);
+                item.SubItems.Add(file.Trimmed);
                 item.SubItems.Add(file.FilePath);
 
                 percent = (int)(++counter / (float)files.Count * 100);
@@ -1450,6 +1596,10 @@ namespace XCI_Organizer {
                     item.UseItemStyleForSubItems = false;
                     item.SubItems[chTrimmed.Index].BackColor = Color.PaleGreen;
                 }
+                else if (item.SubItems[chTrimmed.Index].Text == "eShop") {
+                    item.UseItemStyleForSubItems = false;
+                    item.SubItems[chTrimmed.Index].BackColor = Color.LightSalmon;
+                }
 
                 LV_Files.Items.Add(item);
                 btnBaseFolder.Text = e.ProgressPercentage.ToString() + "% Added";
@@ -1475,7 +1625,7 @@ namespace XCI_Organizer {
             }
         }
 
-        public int findFileData(string selectedFile) {
+        public int FindFileIndex(string selectedFile) {
             int counter = 0;
 
             foreach (FileData file in files) {
@@ -1486,17 +1636,6 @@ namespace XCI_Organizer {
             }
 
             return -1;
-        }
-
-        private void bwDownloadNSPIcons_DoWork(object sender, DoWorkEventArgs e) {
-            using (var client = new WebClient()) {
-                client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL3VjP2V4cG9ydD1kb3dubG9hZCZpZD0xZjBJNWZKWnJ4ZXB5LVFrOEtsTDNmNENETXJVc0t1V2Q="), "icons.zip");
-            }
-
-            if (File.Exists("icons.zip")) {
-                ZipFile.ExtractToDirectory("icons.zip", "icons");
-                File.Delete("icons.zip");
-            }
         }
     }
 }

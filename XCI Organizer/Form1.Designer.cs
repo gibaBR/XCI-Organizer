@@ -98,7 +98,6 @@
             this.chTrimmed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chFilePath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.bwUpdateFileList = new System.ComponentModel.BackgroundWorker();
-            this.bwDownloadNSPIcons = new System.ComponentModel.BackgroundWorker();
             this.contextMenuStrip1.SuspendLayout();
             this.TABC_Main.SuspendLayout();
             this.TABP_XCI.SuspendLayout();
@@ -770,12 +769,12 @@
             // chReleaseID
             // 
             this.chReleaseID.Text = "ID";
-            this.chReleaseID.Width = 38;
+            this.chReleaseID.Width = 43;
             // 
             // chGameName
             // 
             this.chGameName.Text = "Game Name";
-            this.chGameName.Width = 278;
+            this.chGameName.Width = 257;
             // 
             // chRegion
             // 
@@ -807,10 +806,6 @@
             this.bwUpdateFileList.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwUpdateFileList_DoWork);
             this.bwUpdateFileList.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwUpdateFileList_ProgressChanged);
             this.bwUpdateFileList.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwUpdateFileList_RunWorkerCompleted);
-            // 
-            // bwDownloadNSPIcons
-            // 
-            this.bwDownloadNSPIcons.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwDownloadNSPIcons_DoWork);
             // 
             // Form1
             // 
@@ -921,7 +916,6 @@
         private System.Windows.Forms.Label L_Status;
         private System.Windows.Forms.ColumnHeader chRegion;
         private System.Windows.Forms.ColumnHeader chTitleID;
-        private System.ComponentModel.BackgroundWorker bwDownloadNSPIcons;
     }
 }
 

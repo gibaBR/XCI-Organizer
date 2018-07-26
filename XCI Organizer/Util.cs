@@ -92,7 +92,7 @@ namespace XCI_Organizer {
                     path.FilePath = f;
                     path.Header = GetXCIHeader(f);
                     if (Path.GetExtension(f).ToLower() == ".nsp") {
-                        path.isNSP = true;
+                        path.IsNSP = true;
                     }
                     list.Add(path);
                 }
@@ -201,10 +201,10 @@ namespace XCI_Organizer {
                 file.UsedSpace = $"{num3_fs:0.##} {array_fs[num2_fs]}";
 
                 if (num_fs == num3_fs) {
-                    file.isTrimmed = "Yes";
+                    file.Trimmed = "Yes";
                 }
                 else {
-                    file.isTrimmed = "No";
+                    file.Trimmed = "No";
                 }
             }
         }
@@ -323,17 +323,6 @@ namespace XCI_Organizer {
             br.Close();
             fs.Close();
             return header;
-        }
-
-        public static Bitmap ConvertToBitmap(string filename) {
-            Bitmap bitmap;
-            using (Stream bmpStream = System.IO.File.Open(filename, System.IO.FileMode.Open)) {
-                Image image = Image.FromStream(bmpStream);
-
-                bitmap = new Bitmap(image);
-
-            }
-            return bitmap;
         }
     }
 }
