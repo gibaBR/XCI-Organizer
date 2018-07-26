@@ -2,13 +2,9 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
 using static XCI_Organizer.Form1;
 using XCI_Organizer.XTSSharp;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Diagnostics;
 
 namespace XCI_Organizer {
     internal static class Util {
@@ -90,10 +86,13 @@ namespace XCI_Organizer {
             List<FileData> list = new List<FileData>();
 
             try {
-                foreach (string f in Directory.GetFiles(folder, "*.xci", SearchOption.AllDirectories)) {
+                foreach (string f in Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories).Where(s => s.ToLower().EndsWith(".xci") || s.ToLower().EndsWith(".nsp"))) {
                     FileData path = new FileData();
                     path.FilePath = f;
                     path.Header = GetXCIHeader(f);
+                    if(Path.GetExtension(f).ToLower() == ".nsp") {
+                        path.isNSP = true;
+                    }
                     list.Add(path);
                 }
             }
@@ -202,6 +201,9 @@ namespace XCI_Organizer {
 
                 if (num_fs == num3_fs) {
                     file.isTrimmed = "Yes";
+                }
+                else {
+                    file.isTrimmed = "No";
                 }
             }
         }

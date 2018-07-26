@@ -153,7 +153,8 @@ namespace XCI_Organizer {
             public string Region { get; set; } = "";
             public string Languages { get; set; } = "";
             public string ExactUsedSpace { get; set; } = "";
-            public string isTrimmed { get; set; } = "No";
+            public string isTrimmed { get; set; } = "";
+            public bool isNSP { get; set; } = false;
         }
 
         public Form1() {
@@ -167,7 +168,7 @@ namespace XCI_Organizer {
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion + "rev1";
+            this.Text = "XCI Organizer v" + assemblyVersion;
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
@@ -185,6 +186,11 @@ namespace XCI_Organizer {
 
             if (!File.Exists("hactool.exe")) {
                 MessageBox.Show("hactool.exe is missing.");
+                Environment.Exit(0);
+            }
+
+            if(!File.Exists("nstool.exe")) {
+                MessageBox.Show("nstool.exe is missing.");
                 Environment.Exit(0);
             }
 
@@ -273,7 +279,7 @@ namespace XCI_Organizer {
                 LoadXCI();
             }
             else {
-                MessageBox.Show("Unsupported file.");
+                LoadNSP(false);
             }
         }
 
@@ -353,11 +359,44 @@ namespace XCI_Organizer {
 
             TB_UsedSpace.Text = $"{num3:0.##} {array[num2]}";
             TB_Capacity.Text = Util.GetCapacity(XCI.XCI_Headers[0].CardSize1);
-            // Find a way to test MasterKey 5 before file is loaded
+            // Fix hash validation on Sonic Mania Plus (and maybe others)
             LoadPartitionsOld();
             //LoadPartitions();
             LoadNCAData();
             LoadGameInfos();
+        }
+
+        private void LoadNSP(bool isBackground) {
+            string titleid;
+
+            // Very messy way to extract titleid from NSP
+            // Rework with NXTools code
+            Process process = new Process();
+            process.StartInfo = new ProcessStartInfo {
+                //WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+                FileName = "nstool.exe",
+                Arguments = "--listfs \"" + selectedFile + "\"",
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+            process.Start();
+            while ((titleid = process.StandardOutput.ReadLine()) != null) {
+                if (titleid.Contains("0100")) {
+                    titleid = titleid.Trim().Substring(0, 16).ToUpper();
+                    break;
+                }
+            }
+            process.WaitForExit();
+
+            if(!isBackground) {
+                TB_Name.Text = Path.GetFileNameWithoutExtension(selectedFile);
+                TB_TID.Text = titleid;
+            }
+            
+            files[findFileData(selectedFile)].TitleID = titleid;
+
+            //Debug.WriteLine(files[findFileData(selectedFile)].TitleID);
         }
 
         private void LoadGameInfos() {
@@ -999,6 +1038,9 @@ namespace XCI_Organizer {
                     string checkedName;
                     string newPath;
 
+                    if (file.isNSP) {
+                        continue;
+                    }
                     /* Check NSWDB for filenames first
                      * If no entry, use custom naming scheme
                      */
@@ -1116,7 +1158,7 @@ namespace XCI_Organizer {
                 LV_Files.Items[counter].Selected = true;
 
                 foreach (FileData file in files) {
-                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file.FilePath)) {
+                    if (!TB_ROMExactSize.Text.Equals(TB_ExactUsedSpace.Text) && File.Exists(file.FilePath) && !file.isNSP) {
                         _TrimXCI();
                     }
 
@@ -1165,17 +1207,23 @@ namespace XCI_Organizer {
             foreach (ListViewItem item in selection) {
                 ClearFields();
                 selectedFile = item.SubItems[chFilePath.Index].Text;
+
                 if (selectedFile.Trim() != "") {
                     ProcessFile();
+                }
+
+                if (Path.GetExtension(selectedFile).ToLower() == ".nsp") {
+                    buttonsEnabledCertTrim(false);
+                }
+                else {
+                    buttonsEnabledCertTrim(true);
                 }
 
                 break; //Only First Item!
             }
         }
 
-        private void buttonsEnabled(bool status) {
-            btnBaseFolder.Enabled = status;
-            BT_Refresh.Enabled = status;
+        private void buttonsEnabledCertTrim(bool status) {
             B_TrimXCI.Enabled = status;
             B_CopyXCI.Enabled = status;
             B_ExportCert.Enabled = status;
@@ -1183,6 +1231,12 @@ namespace XCI_Organizer {
             B_ViewCert.Enabled = status;
             B_ClearCert.Enabled = status;
             B_Extract.Enabled = status;
+        }
+
+        private void buttonsEnabled(bool status) {
+            btnBaseFolder.Enabled = status;
+            BT_Refresh.Enabled = status;
+            buttonsEnabledCertTrim(status);
             BT_BatchRename.Enabled = status;
             BT_BatchTrim.Enabled = status;
             B_UpdateNSWDB.Enabled = status;
@@ -1223,7 +1277,7 @@ namespace XCI_Organizer {
 
                 file.TitleID = titleid;
 
-                if (file.TitleID == "") {
+                if (file.TitleID == "" && !file.isNSP) {
                     data = Util.GetFileData(file.FilePath);
                     XDocument xDocument = XDocument.Load("cache.dat");
                     XElement root = xDocument.Element("XCIOrganizer");
@@ -1302,6 +1356,12 @@ namespace XCI_Organizer {
                     data.Languages = languages;
                 }
 
+                // For NSP
+                /*if (data.TitleID.Trim() == "0") {
+                    data.TitleID = "???";
+                    data.isTrimmed = "???";
+                }*/
+
                 file.FileName = data.FileName;
                 file.FileNameWithExt = data.FileNameWithExt;
                 file.ROMSize = data.ROMSize;
@@ -1313,6 +1373,13 @@ namespace XCI_Organizer {
                 file.Languages = data.Languages;
                 file.isTrimmed = data.isTrimmed;
                 //Debug.WriteLine(file.ReleaseID);
+
+                if (file.isNSP) {
+                    selectedFile = file.FilePath;
+                    LoadNSP(true);
+                    file.isTrimmed = "???";
+                    Debug.WriteLine(file.TitleID + " NSP loaded");
+                }
 
                 percent = (int)(++counter / (float)files.Count * 100);
                 bwUpdateFileList.ReportProgress(percent, null);
@@ -1398,6 +1465,19 @@ namespace XCI_Organizer {
                 ini.IniWriteValue("Config", "DefaultSort", sortByThis.ToString());
                 UpdateFileList();
             }
+        }
+
+        public int findFileData(string selectedFile) {
+            int counter = 0;
+
+            foreach (FileData file in files) {
+                if (selectedFile == file.FilePath) {
+                    return counter;
+                }
+                counter++;
+            }
+
+            return -1;
         }
     }
 }
