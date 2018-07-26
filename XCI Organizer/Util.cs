@@ -5,6 +5,7 @@ using System.Linq;
 using static XCI_Organizer.Form1;
 using XCI_Organizer.XTSSharp;
 using System.Runtime.InteropServices;
+using System.Drawing;
 
 namespace XCI_Organizer {
     internal static class Util {
@@ -90,7 +91,7 @@ namespace XCI_Organizer {
                     FileData path = new FileData();
                     path.FilePath = f;
                     path.Header = GetXCIHeader(f);
-                    if(Path.GetExtension(f).ToLower() == ".nsp") {
+                    if (Path.GetExtension(f).ToLower() == ".nsp") {
                         path.isNSP = true;
                     }
                     list.Add(path);
@@ -283,7 +284,7 @@ namespace XCI_Organizer {
                 fileStream.Close();
 
                 NCA.NCA_Headers[0] = new NCA.NCA_Header(DecryptNCAHeader(filepath, gameNcaOffset));
-                result.TitleID = NCA.NCA_Headers[0].TitleID.ToString("X");
+                result.TitleID = "0" + NCA.NCA_Headers[0].TitleID.ToString("X");
             }
             return result;
         }
@@ -322,6 +323,17 @@ namespace XCI_Organizer {
             br.Close();
             fs.Close();
             return header;
+        }
+
+        public static Bitmap ConvertToBitmap(string filename) {
+            Bitmap bitmap;
+            using (Stream bmpStream = System.IO.File.Open(filename, System.IO.FileMode.Open)) {
+                Image image = Image.FromStream(bmpStream);
+
+                bitmap = new Bitmap(image);
+
+            }
+            return bitmap;
         }
     }
 }

@@ -18,6 +18,7 @@ using System.Xml.Linq;
 using XCI_Explorer;
 using XCI_Organizer.Helpers;
 using XCI_Organizer.XTSSharp;
+using System.IO.Compression;
 
 namespace XCI_Organizer {
     public partial class Form1 : Form {
@@ -172,7 +173,7 @@ namespace XCI_Organizer {
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
-                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.", "XCI Explorer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     using (var client = new WebClient()) {
                         client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L0JQckxYd0JK"), "keys.txt");
                     }
@@ -189,13 +190,24 @@ namespace XCI_Organizer {
                 Environment.Exit(0);
             }
 
-            if(!File.Exists("nstool.exe")) {
+            if (!File.Exists("nstool.exe")) {
                 MessageBox.Show("nstool.exe is missing.");
                 Environment.Exit(0);
             }
 
             if (!File.Exists("db.xml")) {
                 updateNSWDB();
+            }
+
+            if (!Directory.Exists("icons")) {
+                Directory.CreateDirectory("icons");
+
+                if (MessageBox.Show("Icons for eShop games can be downloaded.\nWould you like to download them now?\n\nIt will be downloaded and unzipped automatically in the background.", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                    if (!bwDownloadNSPIcons.IsBusy) {
+                        // Start the asynchronous operation.
+                        bwDownloadNSPIcons.RunWorkerAsync();
+                    }
+                }
             }
 
             getKey();
@@ -389,11 +401,16 @@ namespace XCI_Organizer {
             }
             process.WaitForExit();
 
-            if(!isBackground) {
+            if (!isBackground) {
+                string icon = "icons\\" + titleid.ToLower() + ".jpg";
                 TB_Name.Text = Path.GetFileNameWithoutExtension(selectedFile);
                 TB_TID.Text = titleid;
+                if (File.Exists(icon)) {
+                    PB_GameIcon.BackgroundImage = new Bitmap(Util.ConvertToBitmap(icon));
+                }
+
             }
-            
+
             files[findFileData(selectedFile)].TitleID = titleid;
 
             //Debug.WriteLine(files[findFileData(selectedFile)].TitleID);
@@ -1180,7 +1197,7 @@ namespace XCI_Organizer {
 
         private void PB_GameIcon_Click(object sender, EventArgs e) {
             // This needs a lot more work and probably will depend on code from the renamer once it's finished
-            if (MessageBox.Show("Are you sure you want to save the current icon image?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+            if (!files[findFileData(selectedFile)].isNSP && MessageBox.Show("Are you sure you want to save the current icon image?\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                 int num = Array.FindIndex(Language, (string element) => element.StartsWith(CB_RegionName.Text, StringComparison.Ordinal));
                 string iconFile = "icon_" + DateTime.Now.ToString("yyyyMMddHHmmssffffff") + ".jpg";
 
@@ -1296,9 +1313,6 @@ namespace XCI_Organizer {
                     Debug.WriteLine(file.Header.PackageID.ToString() + " read from cache");
                 }
 
-                // Fix TitleID
-                data.TitleID = "0" + data.TitleID;
-
                 // Get correct filesizes every time
                 data.FilePath = file.FilePath;
                 Util.GetFileSize(ref data);
@@ -1356,12 +1370,6 @@ namespace XCI_Organizer {
                     data.Languages = languages;
                 }
 
-                // For NSP
-                /*if (data.TitleID.Trim() == "0") {
-                    data.TitleID = "???";
-                    data.isTrimmed = "???";
-                }*/
-
                 file.FileName = data.FileName;
                 file.FileNameWithExt = data.FileNameWithExt;
                 file.ROMSize = data.ROMSize;
@@ -1375,9 +1383,9 @@ namespace XCI_Organizer {
                 //Debug.WriteLine(file.ReleaseID);
 
                 if (file.isNSP) {
+                    file.isTrimmed = "???";
                     selectedFile = file.FilePath;
                     LoadNSP(true);
-                    file.isTrimmed = "???";
                     Debug.WriteLine(file.TitleID + " NSP loaded");
                 }
 
@@ -1478,6 +1486,17 @@ namespace XCI_Organizer {
             }
 
             return -1;
+        }
+
+        private void bwDownloadNSPIcons_DoWork(object sender, DoWorkEventArgs e) {
+            using (var client = new WebClient()) {
+                client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL3VjP2V4cG9ydD1kb3dubG9hZCZpZD0xZjBJNWZKWnJ4ZXB5LVFrOEtsTDNmNENETXJVc0t1V2Q="), "icons.zip");
+            }
+
+            if (File.Exists("icons.zip")) {
+                ZipFile.ExtractToDirectory("icons.zip", "icons");
+                File.Delete("icons.zip");
+            }
         }
     }
 }
