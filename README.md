@@ -34,6 +34,7 @@ Manage your XCI library easily
 * gibaBR - XCI Organizer creator, features, refactoring code, bug fixes
 * RedSparr0w - Batch tool improvements
 * LucaFraga - hacbuild
+* jakcron - NXTools
 * StudentBlake - Special contributor to the project
 
 ## Disclaimer
