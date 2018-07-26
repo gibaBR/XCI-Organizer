@@ -1,5 +1,13 @@
 # Changelog
-**v0.1.2r1 EXPERIMENTAL**
+**v0.1.3 EXPERIMENTAL**
+* Basic NSP Support; it will only show Title ID for now
+* eShop icons downloadable and viewable (~50MB and no progress bar)
+* Cert window will now show file path
+* Cache will save correct Title ID now
+* Latest hactool included
+* Something could have broken as things have been adapted for NSP files. Let me know!
+
+v0.1.2r1 EXPERIMENTAL
 * Support for NSWDB revisions
 * Cache is now universal and can be shared between users
 * Trimming no longer deletes cache
