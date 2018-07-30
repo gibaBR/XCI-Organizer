@@ -511,7 +511,7 @@ namespace XCI_Organizer {
 
             Process process = new Process();
             try {
-                // Very hacky workaround since nstool doesn't support non-ASII characters
+                // Very hacky workaround since nstool doesn't support non-ANSI characters
                 if (Util.ContainsUnicodeCharacter(selectedFile)) {
                     process.StartInfo = new ProcessStartInfo {
                         WindowStyle = ProcessWindowStyle.Hidden,
@@ -521,7 +521,7 @@ namespace XCI_Organizer {
                 }
                 else {
                     // Using a modified version of NXTools (nstool) to only extract NCA under 10 MB
-                    // Bugs: Currently doesn't work with files that contain non-ASII characters
+                    // Bugs: Currently doesn't work with files that contain non-ANSI characters
                     process.StartInfo = new ProcessStartInfo {
                         WindowStyle = ProcessWindowStyle.Hidden,
                         FileName = "tools\\nstoolmod.exe",
@@ -1205,6 +1205,11 @@ namespace XCI_Organizer {
                     string uncheckedName = TB_Name.Text.ToString();
                     string checkedName;
                     string newPath;
+
+                    // Renaming might have some issues with NSP for now
+                    if (file.IsNSP) {
+                        continue;
+                    }
 
                     /* Check NSWDB for filenames first
                      * If no entry, use custom naming scheme
