@@ -511,18 +511,23 @@ namespace XCI_Organizer {
 
             Process process = new Process();
             try {
-                /*process.StartInfo = new ProcessStartInfo {
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "hactool.exe",
-                    Arguments = "-t pfs0 " + "\"" + selectedFile + "\"" + " --outdir=tmp"
-                };*/
-                // Using a modified version of NXTools (nstool) to only extract NCA under 10 MB
-                // Bugs: Currently doesn't work with files that contain unicode
-                process.StartInfo = new ProcessStartInfo {
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "tools\\nstoolmod.exe",
-                    Arguments = "--fsdir tmp \"" + selectedFile + "\""
-                };
+                // Very hacky workaround since nstool doesn't support non-ASII characters
+                if (Util.ContainsUnicodeCharacter(selectedFile)) {
+                    process.StartInfo = new ProcessStartInfo {
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        FileName = "tools\\hactool.exe",
+                        Arguments = "-t pfs0 " + "\"" + selectedFile + "\"" + " --outdir=tmp"
+                    };
+                }
+                else {
+                    // Using a modified version of NXTools (nstool) to only extract NCA under 10 MB
+                    // Bugs: Currently doesn't work with files that contain non-ASII characters
+                    process.StartInfo = new ProcessStartInfo {
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        FileName = "tools\\nstoolmod.exe",
+                        Arguments = "--fsdir tmp \"" + selectedFile + "\""
+                    };
+                }
                 process.Start();
                 process.WaitForExit();
                 process.Close();

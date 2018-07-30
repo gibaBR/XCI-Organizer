@@ -300,7 +300,6 @@ namespace XCI_Organizer {
         }
 
         public static T FromBinaryReader<T>(BinaryReader reader) {
-
             // Read in a byte array
             byte[] bytes = new byte[Marshal.SizeOf(typeof(T))];
             reader.Read(bytes, 0, Marshal.SizeOf(typeof(T)));
@@ -323,6 +322,11 @@ namespace XCI_Organizer {
             br.Close();
             fs.Close();
             return header;
+        }
+
+        public static bool ContainsUnicodeCharacter(string input) {
+            const int MaxAnsiCode = 127;
+            return input.Any(c => c > MaxAnsiCode);
         }
     }
 }
