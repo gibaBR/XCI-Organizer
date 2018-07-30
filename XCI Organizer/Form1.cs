@@ -182,17 +182,17 @@ namespace XCI_Organizer {
                 }
             }
 
-            if (!File.Exists("hactool.exe")) {
+            if (!File.Exists("tools\\hactool.exe")) {
                 MessageBox.Show("hactool.exe is missing.");
                 Environment.Exit(0);
             }
 
-            if (!File.Exists("nstool.exe")) {
-                MessageBox.Show("nstool.exe is missing.");
+            if (!File.Exists("tools\\nstoolmod.exe")) {
+                MessageBox.Show("nstoolmod.exe is missing.");
                 Environment.Exit(0);
             }
 
-            if (!File.Exists("db.xml")) {
+            if (!File.Exists("cache\\db.xml")) {
                 updateNSWDB();
             }
 
@@ -371,7 +371,7 @@ namespace XCI_Organizer {
 
         private void LoadNSP(bool isBackground) {
             if (!isBackground) {
-                LoadNSPMetadata(selectedFile);
+                LoadNSPMetadata();
             }
             else {
                 string titleid;
@@ -383,7 +383,7 @@ namespace XCI_Organizer {
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
-                    FileName = "nstool.exe",
+                    FileName = "tools\\nstoolmod.exe",
                     Arguments = "--listfs \"" + selectedFile + "\""
 
                 };
@@ -435,7 +435,7 @@ namespace XCI_Organizer {
                         Process process = new Process();
                         process.StartInfo = new ProcessStartInfo {
                             WindowStyle = ProcessWindowStyle.Hidden,
-                            FileName = "hactool.exe",
+                            FileName = "tools\\hactool.exe",
                             Arguments = "-k keys.txt --romfsdir=data meta"
                         };
                         process.Start();
@@ -486,7 +486,7 @@ namespace XCI_Organizer {
 
         // Thanks Giba for figureing this out!
         // Needs improvement, but overall gets the info needed
-        public void LoadNSPMetadata(string file) {
+        public void LoadNSPMetadata() {
             CB_RegionName.Items.Clear();
             CB_RegionName.Enabled = true;
             TB_Name.Text = "";
@@ -494,7 +494,7 @@ namespace XCI_Organizer {
             PB_GameIcon.BackgroundImage = null;
             Array.Clear(Icons, 0, Icons.Length);
             TV_Partitions.Nodes.Clear();
-            FileInfo fi = new FileInfo(file);
+            FileInfo fi = new FileInfo(selectedFile);
             //Get File Size
             string[] array_fs = new string[5] { "B", "KB", "MB", "GB", "TB" };
             double num_fs = (double)fi.Length;
@@ -511,10 +511,17 @@ namespace XCI_Organizer {
 
             Process process = new Process();
             try {
-                process.StartInfo = new ProcessStartInfo {
+                /*process.StartInfo = new ProcessStartInfo {
                     WindowStyle = ProcessWindowStyle.Hidden,
                     FileName = "hactool.exe",
-                    Arguments = "-t pfs0 " + "\"" + file + "\"" + " --outdir=tmp"
+                    Arguments = "-t pfs0 " + "\"" + selectedFile + "\"" + " --outdir=tmp"
+                };*/
+                // Using a modified version of NXTools (nstool) to only extract NCA under 10 MB
+                // Bugs: Currently doesn't work with files that contain unicode
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "tools\\nstoolmod.exe",
+                    Arguments = "--fsdir tmp \"" + selectedFile + "\""
                 };
                 process.Start();
                 process.WaitForExit();
@@ -544,7 +551,7 @@ namespace XCI_Organizer {
                 process = new Process();
                 process.StartInfo = new ProcessStartInfo {
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "hactool.exe",
+                    FileName = "tools\\hactool.exe",
                     Arguments = "-k keys.txt --romfsdir=tmp tmp/" + ncaTarget
                 };
                 process.Start();
@@ -572,8 +579,8 @@ namespace XCI_Organizer {
                         }
                     }
                 }
-                TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", ""); ;
-                TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", ""); ;
+                TB_GameRev.Text = NACP.NACP_Datas[0].GameVer.Replace("\0", "");
+                TB_ProdCode.Text = NACP.NACP_Datas[0].GameProd.Replace("\0", "");
                 if (TB_ProdCode.Text == "") {
                     TB_ProdCode.Text = "No Prod. ID";
                 }
@@ -596,7 +603,7 @@ namespace XCI_Organizer {
                 process = new Process();
                 process.StartInfo = new ProcessStartInfo {
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = "hactool.exe",
+                    FileName = "tools\\hactool.exe",
                     Arguments = "-k keys.txt tmp/" + ncaTarget,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
@@ -1198,7 +1205,7 @@ namespace XCI_Organizer {
                      * If no entry, use custom naming scheme
                      */
                     XmlDocument doc = new XmlDocument();
-                    doc.Load("db.xml");
+                    doc.Load("cache\\db.xml");
                     var nodePath = "releases/release[titleid = '" + file.TitleID + "']";
                     var node = doc.SelectSingleNode(nodePath);
                     if (node != null) {
@@ -1353,8 +1360,9 @@ namespace XCI_Organizer {
         }
 
         private void updateNSWDB() {
+            Directory.CreateDirectory("cache");
             using (var client = new WebClient()) {
-                client.DownloadFile(@"http://nswdb.com/xml.php", "db.xml");
+                client.DownloadFile(@"http://nswdb.com/xml.php", "cache\\db.xml");
             }
         }
 
@@ -1410,11 +1418,12 @@ namespace XCI_Organizer {
             XmlDocument doc = new XmlDocument();
             XmlDocument cacheDoc = new XmlDocument();
 
-            if (!File.Exists("cache.dat")) {
+            if (!File.Exists("cache\\cache.dat")) {
                 XmlWriterSettings settings = new XmlWriterSettings();
                 settings.Indent = true;
                 settings.IndentChars = ("    ");
-                using (XmlWriter writer = XmlWriter.Create("cache.dat", settings)) {
+                Directory.CreateDirectory("cache");
+                using (XmlWriter writer = XmlWriter.Create("cache\\cache.dat", settings)) {
                     // Setup file
                     writer.WriteStartElement("XCIOrganizer");
                     writer.WriteStartElement("universalpair");
@@ -1423,11 +1432,11 @@ namespace XCI_Organizer {
                 }
             }
 
-            doc.Load("db.xml");
+            doc.Load("cache\\db.xml");
             foreach (FileData file in files) {
                 FileData data = new FileData();
 
-                cacheDoc.Load("cache.dat");
+                cacheDoc.Load("cache\\cache.dat");
 
                 // Search for the proper packageid from file
                 var cacheNodePath = "XCIOrganizer/universalpair[packageid = '" + file.Header.PackageID + "']";
@@ -1442,7 +1451,7 @@ namespace XCI_Organizer {
 
                 if (file.TitleID == "" && !file.IsNSP) {
                     data = Util.GetFileData(file.FilePath);
-                    XDocument xDocument = XDocument.Load("cache.dat");
+                    XDocument xDocument = XDocument.Load("cache\\cache.dat");
                     XElement root = xDocument.Element("XCIOrganizer");
                     IEnumerable<XElement> rows = root.Descendants("universalpair");
                     XElement firstRow = rows.First();
@@ -1451,7 +1460,7 @@ namespace XCI_Organizer {
                        new XElement("packageid", file.Header.PackageID.ToString()),
                        new XElement("titleid", data.TitleID)));
 
-                    xDocument.Save("cache.dat");
+                    xDocument.Save("cache\\cache.dat");
                     Debug.WriteLine(file.Header.PackageID.ToString() + " written to cache");
                 }
                 else {
