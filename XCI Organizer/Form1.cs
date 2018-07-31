@@ -166,29 +166,31 @@ namespace XCI_Organizer {
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] versionArray = assemblyVersion.Split('.');
             assemblyVersion = string.Join(".", versionArray.Take(NUMBERSINVERSION));
-            this.Text = "XCI Organizer v" + assemblyVersion + "rev2";
+            this.Text = "XCI Organizer v" + assemblyVersion + "rev3";
             bwUpdateFileList.WorkerReportsProgress = true;
 
             if (!File.Exists("keys.txt")) {
-                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                if (MessageBox.Show("keys.txt is missing.\nDo you want to automatically download it now?\n\nBy pressing 'Yes' you agree that you own these keys.\n", "XCI Organizer", MessageBoxButtons.YesNo) == DialogResult.Yes) {
                     using (var client = new WebClient()) {
                         client.DownloadFile(Util.Base64Decode("aHR0cHM6Ly9wYXN0ZWJpbi5jb20vcmF3L0JQckxYd0JK"), "keys.txt");
                     }
                 }
 
                 if (!File.Exists("keys.txt")) {
-                    MessageBox.Show("keys.txt failed to load.\nPlease include keys.txt in this location.");
+                    MessageBox.Show("keys.txt failed to load.\nPlease include keys.txt in the root folder.");
                     Environment.Exit(0);
                 }
             }
 
             if (!File.Exists("tools\\hactool.exe")) {
-                MessageBox.Show("hactool.exe is missing.");
+                Directory.CreateDirectory("tools");
+                MessageBox.Show("hactool.exe is missing.\nPlease include hactool.exe in the 'tools' folder.");
                 Environment.Exit(0);
             }
 
             if (!File.Exists("tools\\nstoolmod.exe")) {
-                MessageBox.Show("nstoolmod.exe is missing.");
+                Directory.CreateDirectory("tools");
+                MessageBox.Show("nstoolmod.exe is missing.\nPlease include nstoolmod.exe in the 'tools' folder.");
                 Environment.Exit(0);
             }
 
@@ -511,23 +513,12 @@ namespace XCI_Organizer {
 
             Process process = new Process();
             try {
-                // Very hacky workaround since nstool doesn't support non-ANSI characters
-                if (Util.ContainsUnicodeCharacter(selectedFile)) {
-                    process.StartInfo = new ProcessStartInfo {
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        FileName = "tools\\hactool.exe",
-                        Arguments = "-t pfs0 " + "\"" + selectedFile + "\"" + " --outdir=tmp"
-                    };
-                }
-                else {
-                    // Using a modified version of NXTools (nstool) to only extract NCA under 10 MB
-                    // Bugs: Currently doesn't work with files that contain non-ANSI characters
-                    process.StartInfo = new ProcessStartInfo {
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        FileName = "tools\\nstoolmod.exe",
-                        Arguments = "--fsdir tmp \"" + selectedFile + "\""
-                    };
-                }
+                // Using a modified version of NXTools (nstool) to only extract NCA under 10 MB
+                process.StartInfo = new ProcessStartInfo {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "tools\\nstoolmod.exe",
+                    Arguments = "--fsdir tmp \"" + selectedFile + "\""
+                };
                 process.Start();
                 process.WaitForExit();
                 process.Close();
