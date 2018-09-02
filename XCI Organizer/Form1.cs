@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -632,6 +633,7 @@ namespace XCI_Organizer {
                 Directory.Delete("tmp", true);
             }
             TB_Capacity.Text = "eShop";
+            //TB_Capacity.Text = GetGameCode();
             CB_RegionName.SelectedIndex = 0;
         }
 
@@ -1646,6 +1648,58 @@ namespace XCI_Organizer {
             }
 
             return -1;
+        }
+
+        public string GetGameCode() {
+            string gameCode, slug;
+            int fileIndex = FindFileIndex(selectedFile);
+
+            slug = GrabSlug(string.Format(@"https://ec.nintendo.com/apps/{0}/US", files[fileIndex].TitleID));
+
+            if (slug != null) {
+                using (var client = new WebClient()) {
+                    Stream file = client.OpenRead(string.Format(@"https://www.nintendo.com/json/content/get/game/{0}", slug));
+
+                    using (StreamReader r = new StreamReader(file)) {
+                        string json = r.ReadToEnd();
+                        JObject rss = JObject.Parse(json);
+
+                        gameCode = (string)rss["game"]["game_code"];
+                        gameCode = "LA-H-" + gameCode.Substring(gameCode.Length - 5);
+                    }
+                }
+            }
+            else {
+                gameCode = "N/A";
+            }
+
+            return gameCode;
+        }
+
+        public string GrabSlug(string url) {
+            string location = string.Copy(url);
+
+            while (!string.IsNullOrWhiteSpace(location)) {
+                HttpWebRequest request = HttpWebRequest.CreateHttp(location);
+                HttpWebResponse response;
+                request.AllowAutoRedirect = false;
+
+                try {
+                    response = (HttpWebResponse)request.GetResponse();
+                }
+                catch {
+                    return null;
+                }
+                
+                using (response) {
+                    location = response.GetResponseHeader("Location");
+                }
+
+                if (location.Contains("/games/detail/")) {
+                    return location.Substring(location.IndexOf("/games/detail/") + ("/games/detail/").Length);
+                }
+            }
+            return null;
         }
     }
 }

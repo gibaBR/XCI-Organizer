@@ -323,10 +323,5 @@ namespace XCI_Organizer {
             fs.Close();
             return header;
         }
-
-        public static bool ContainsUnicodeCharacter(string input) {
-            const int MaxAnsiCode = 127;
-            return input.Any(c => c > MaxAnsiCode);
-        }
     }
 }
