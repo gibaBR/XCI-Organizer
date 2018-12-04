@@ -1,3 +1,4 @@
+# THIS IS NO LONGER BEING MAINTAINED AND IS ARCHIVED
 # XCI Organizer
 
 [Original Reddit Release](https://www.reddit.com/r/SwitchHacks/comments/8vma9o/xci_organizer_v001/)
