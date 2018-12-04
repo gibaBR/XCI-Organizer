@@ -1,3 +1,4 @@
+# THIS IS NO LONGER BEING MAINTAINED AND IS ARCHIVED
 # XCI Organizer
 
 [Original Reddit Release](https://www.reddit.com/r/SwitchHacks/comments/8vma9o/xci_organizer_v001/)
@@ -9,33 +10,33 @@ Manage your XCI library easily
 * Displays your whole library
 * Makes managing easy
 
+![main](https://imgur.com/grv1mCK.jpg)
+
 ## Requirements
 * Visual Studio 2017
 * [Hactool](https://github.com/SciresM/hactool/releases)
-* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/) ([optional](https://github.com/StudentBlake/XCI-Explorer/releases/download/v1.0.0.0/Get-keys.txt.bat))
+* [Dumped keys](https://gbatemp.net/threads/how-to-get-switch-keys-for-hactool-xci-decrypting.506978/)
 
-![main](https://i.imgur.com/0CVwnJZ.png)
-
-## Changelog
-v 0.0.7
-
-* New user interface for listing games!
-* Highlights when files are not trimmed
-* Some code refactoring
-* Conext menu for selected items
+## Latest Changelog
+**v0.1 FINAL**
+* Game icon properly sized
+* Batch rename now takes less than 5 seconds
+* This is probably the last release for this project (a better version coming soon)
 
 ## Build Instructions
-* Open `XCI Organizer.sln`
-* Build -> Build Solution
-* Add hactool.exe + dependencies + keys.txt to `XCI-Organizer/bin/Debug/` folder
-* Run `XCI-Organizer.exe`
+* Open **XCI Explorer.sln**
+* Change *Debug* to *Release* in the dropdown menu
+* Go to *Build*, then *Build Solution*
+* Extract **hactool.zip** to `XCI-Explorer/bin/Release/` folder
+* Run **XCI-Explorer.exe**
 
 ## Special Thanks
-* klks - CARD2, Hash Validation, bug fixes
-* gibaBR - XCI Organizer creator
+* klks - CARD2, Hash Validation, critical bug fixes
+* gibaBR - XCI Organizer creator, features, refactoring code, bug fixes
+* RedSparr0w - Batch tool improvements
+* LucaFraga - hacbuild
+* jakcron - NXTools
 * StudentBlake - Special contributor to the project
 
 ## Disclaimer
-This is not my original work. I just made minor changes.
-
-I am NOT a developer and this has NOT been extensively tested!
+This software is unfinished and unoptimized! Please use with caution.

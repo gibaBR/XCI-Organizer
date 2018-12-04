@@ -51,7 +51,7 @@ namespace XCI_Explorer {
             base.Name = "CertForm";
             base.ShowIcon = false;
             base.StartPosition = FormStartPosition.CenterScreen;
-            Text = "cert data";
+            Text = "Cert Data";
             ResumeLayout(false);
         }
     }
